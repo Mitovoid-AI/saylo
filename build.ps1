@@ -4,7 +4,7 @@
 # the key step). Anyone with the exe can extract it: only share builds with people you trust.
 Set-Location $PSScriptRoot
 $addData = ""
-$keyLine = Select-String -Path .env -Pattern '^GROQ_API_KEY=.+' -ErrorAction SilentlyContinue | Select-Object -First 1
+$keyLine = if (Test-Path .env) { Select-String -Path .env -Pattern '^GROQ_API_KEY=.+' | Select-Object -First 1 }
 if ($keyLine) {
     New-Item -ItemType Directory -Force build | Out-Null
     Set-Content -Path build\bundled.env -Value $keyLine.Line -Encoding ascii
