@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Saylo</string>
+    <string name="keyboard_name">Saylo voice keyboard</string>
+
+    <!-- keyboard -->
+    <string name="kb_ready">Hold the mic, speak, let go</string>
+    <string name="kb_listening">Listening…</string>
+    <string name="kb_writing">Writing…</string>
+    <string name="kb_too_short">Hold the mic a little longer</string>
+    <string name="kb_not_heard">Didn’t catch that. Try again.</string>
+    <string name="kb_need_key">Tap the mic to add your Groq key in Saylo</string>
+    <string name="kb_need_mic">Tap the mic to allow the microphone in Saylo</string>
+    <string name="kb_mic_error">The microphone is busy or unavailable</string>
+    <string name="kb_mic">Hold to talk</string>
+    <string name="kb_space">space</string>
+    <string name="kb_switch">Switch keyboard</string>
+    <string name="kb_backspace">Delete</string>
+    <string name="kb_enter">Enter</string>
+
+    <!-- setup -->
+    <string name="setup_title">Set up Saylo</string>
+    <string name="setup_sub">Hold the mic on the Saylo keyboard, talk the way you think, let go. Clean text appears in the box you’re typing in.</string>
+    <string name="step_key">1. Add your Groq key</string>
+    <string name="step_key_text">Free at console.groq.com/keys → Create API Key. It’s stored only on this phone.</string>
+    <string name="key_hint">gsk_…</string>
+    <string name="key_save">Save key</string>
+    <string name="key_checking">Checking key…</string>
+    <string name="key_saved">Key saved ✓ Paste a new one to replace it.</string>
+    <string name="key_empty">Paste your key first.</string>
+    <string name="get_key">Get a free key</string>
+    <string name="step_mic">2. Allow the microphone</string>
+    <string name="step_mic_text">Saylo only listens while you hold the mic.</string>
+    <string name="mic_allow">Allow microphone</string>
+    <string name="mic_allowed">Microphone allowed ✓</string>
+    <string name="mic_denied">Blocked. Allow the microphone for Saylo in your phone’s app settings.</string>
+    <string name="step_kb">3. Turn on the Saylo keyboard</string>
+    <string name="step_kb_text">Turn it on once, then switch to it from any keyboard with the keyboard icon.</string>
+    <string name="kb_enable">Turn on Saylo keyboard</string>
+    <string name="kb_enabled">Saylo keyboard is on ✓</string>
+    <string name="kb_pick">Switch to Saylo keyboard</string>
+    <string name="step_try">Try it</string>
+    <string name="try_hint">Tap here, switch to the Saylo keyboard and hold the mic…</string>
+    <string name="paid_note">Coming in the next update: a paid version that needs no API key.</string>
+</resources>

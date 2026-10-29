@@ -156,7 +156,7 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow">Voice to text for Windows and Chrome</div>
+    <div class="eyebrow">Voice to text for Windows, Chrome and Android</div>
     <h1>Say it messy.<br><em>Send it clean.</em></h1>
     <p class="lead">Hold <span class="kbd">Ctrl</span>+<span class="kbd">Win</span>, talk the way you think, let go. Saylo drops the ums, fixes your corrections and puts tidy text wherever your cursor is, in about a second.</p>
     <div class="ctas">
@@ -233,10 +233,18 @@
           <p class="alt">Chrome Web Store listing coming soon</p>
         </div>
       </div>
-      <div class="plat off reveal">
-        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6E6A74" stroke-width="1.8" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg></div>
-        <h3>Android</h3><p>A keyboard with a Saylo mic key, so you can dictate in any app on your phone.</p>
-        <div class="acts"><span class="soon">Coming soon</span></div>
+      <div class="plat reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E7C66" stroke-width="1.8" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg></div>
+        <h3>Android</h3><p>A voice keyboard: hold the mic in any app on your phone. Android 8 and newer.</p>
+        <ol class="install">
+          <li>Download the APK and open it. Allow installing from your browser when asked.</li>
+          <li>Open Saylo: add your Groq key and allow the microphone.</li>
+          <li>Turn on the Saylo keyboard, then switch to it in any app.</li>
+        </ol>
+        <div class="acts">
+          <a class="btn green" style="justify-content:center" href="https://github.com/Mitovoid-AI/saylo/releases/latest/download/saylo-android.apk">Download APK</a>
+          <p class="alt">Google Play listing coming soon</p>
+        </div>
       </div>
     </div>
   </div>
@@ -246,7 +254,7 @@
   <div class="wrap">
     <div class="head reveal"><div class="eyebrow">FAQ</div><h2>Questions, answered.</h2></div>
     <div class="faq">
-      <details><summary>Is Saylo free?</summary><p>Yes. Saylo uses Groq's speech and language models, and you plug in your own Groq API key, which is free for personal use within Groq's limits. A paid plan that needs no key is planned.</p></details>
+      <details><summary>Is Saylo free?</summary><p>Yes. Saylo uses Groq's speech and language models, and you plug in your own Groq API key, which is free for personal use within Groq's limits. A paid version that needs no key is coming in the next update.</p></details>
       <details><summary>How do I get a Groq key?</summary><p>Sign in at <a href="https://console.groq.com/keys" rel="noopener">console.groq.com/keys</a>, click “Create API Key” and paste it into Saylo during setup. It takes about a minute. The key is stored only on your computer.</p></details>
       <details><summary>What happens to my voice?</summary><p>Saylo records only while you hold the shortcut. The clip goes directly from your PC to Groq to be turned into text and cleaned up; Saylo has no server in between. Your history is kept on your PC only, and you can switch it off or delete it.</p></details>
       <details><summary>Windows says “Windows protected your PC”. Is that safe?</summary><p>That warning appears for new apps that aren't code-signed yet. Click “More info”, then “Run anyway”. The installer is built automatically from the public code in the GitHub repository.</p></details>

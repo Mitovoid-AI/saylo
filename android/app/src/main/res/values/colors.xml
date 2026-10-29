@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same palette as the Windows app (ui/app.css). -->
+<resources>
+    <color name="bg">#FBF9F6</color>
+    <color name="card">#FFFFFF</color>
+    <color name="ink">#16141B</color>
+    <color name="muted">#6E6A74</color>
+    <color name="line">#E7E1D8</color>
+    <color name="accent">#0E7C66</color>
+    <color name="accent_soft">#E2F3EC</color>
+    <color name="accent_ink">#095A4A</color>
+    <color name="mint">#7FE0C2</color>
+    <color name="err">#C0392B</color>
+    <color name="kb_text">#D9D4DE</color>
+</resources>

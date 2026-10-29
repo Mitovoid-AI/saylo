@@ -1,6 +1,6 @@
-# Every push to main: build Saylo for Windows and the Chrome extension, publish a GitHub Release
-# (v0.1.<run number>) with the installer, the standalone exe and saylo-chrome.zip, then deploy the
-# website in site/ to GitHub Pages.
+# Every push to main: build Saylo for Windows, the Chrome extension and the Android keyboard, publish a
+# GitHub Release (v0.1.<run number>) with the installer, the standalone exe, saylo-chrome.zip and
+# saylo-android.apk, then deploy the website in site/ to GitHub Pages.
 # Public builds carry no API key: users add their own free Groq key during setup.
 name: Release
 
@@ -65,8 +65,42 @@ jobs:
           name: chrome
           path: saylo-chrome.zip
 
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Signed with the release key when the ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD secrets
+      # exist; otherwise with this run's debug key (then a new APK can't update an installed one).
+      - name: Build saylo-android.apk
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          SAYLO_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          SAYLO_BUILD: ${{ github.run_number }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/saylo.jks"
+            export SAYLO_KEYSTORE="$RUNNER_TEMP/saylo.jks"
+          else
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret: the APK is signed with a throwaway debug key."
+          fi
+          cd android
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk ../saylo-android.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android
+          path: saylo-android.apk
+
   release:
-    needs: [windows, chrome]
+    needs: [windows, chrome, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -78,7 +112,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "v$SAYLO_VERSION" out/Saylo-Setup.exe out/Saylo.exe out/saylo-chrome.zip \
+          gh release create "v$SAYLO_VERSION" out/Saylo-Setup.exe out/Saylo.exe out/saylo-chrome.zip out/saylo-android.apk \
             --repo "$GITHUB_REPOSITORY" --title "Saylo $SAYLO_VERSION" --target "$GITHUB_SHA" --generate-notes
 
   pages:

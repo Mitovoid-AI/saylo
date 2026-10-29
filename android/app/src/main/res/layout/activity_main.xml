@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="24dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:importantForAccessibility="no"
+                android:src="@mipmap/ic_launcher" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="@string/app_name"
+                android:textColor="@color/ink"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setup_title"
+            android:textColor="@color/ink"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:text="@string/setup_sub"
+            android:textColor="@color/muted"
+            android:textSize="16sp" />
+
+        <!-- 1. key -->
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/CardTitle" android:text="@string/step_key" />
+            <TextView style="@style/CardText" android:text="@string/step_key_text" />
+            <EditText
+                android:id="@+id/key"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@drawable/field"
+                android:hint="@string/key_hint"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:textSize="15sp" />
+            <Button
+                android:id="@+id/saveKey"
+                style="@style/Button"
+                android:layout_marginTop="10dp"
+                android:text="@string/key_save" />
+            <TextView
+                android:id="@+id/getKey"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/get_key"
+                android:textColor="@color/accent"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/keyMsg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- 2. microphone -->
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/CardTitle" android:text="@string/step_mic" />
+            <TextView style="@style/CardText" android:text="@string/step_mic_text" />
+            <Button android:id="@+id/allowMic" style="@style/Button" android:text="@string/mic_allow" />
+            <TextView
+                android:id="@+id/micMsg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- 3. keyboard -->
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/CardTitle" android:text="@string/step_kb" />
+            <TextView style="@style/CardText" android:text="@string/step_kb_text" />
+            <Button android:id="@+id/enableKb" style="@style/Button" android:text="@string/kb_enable" />
+            <TextView
+                android:id="@+id/kbMsg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp" />
+            <Button
+                android:id="@+id/pickKb"
+                style="@style/Button"
+                android:layout_marginTop="10dp"
+                android:text="@string/kb_pick" />
+        </LinearLayout>
+
+        <!-- try it -->
+        <LinearLayout style="@style/Card">
+            <TextView style="@style/CardTitle" android:text="@string/step_try" />
+            <EditText
+                android:id="@+id/tryBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/field"
+                android:gravity="top"
+                android:hint="@string/try_hint"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine|textCapSentences"
+                android:minLines="4"
+                android:padding="14dp"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="@string/paid_note"
+            android:textColor="@color/muted"
+            android:textSize="13sp" />
+    </LinearLayout>
+</ScrollView>
