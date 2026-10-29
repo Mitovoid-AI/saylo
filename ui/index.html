@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saylo</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<template id="logo"><svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="9" fill="#16141B"/><path d="M8 18c0-2 1-3 2-3s2 1 2 3M13 20V10M17 22V8M21 18v-6" stroke="#7FE0C2" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg></template>
+
+<!-- ================= ONBOARDING ================= -->
+<div class="onb hidden" id="onb">
+  <nav class="steps">
+    <span>Account</span><i></i><span>About you</span><i></i><span>Privacy</span><i></i><span>Setup</span><i></i><span>Try it</span>
+    <div class="progress" id="prog"></div>
+  </nav>
+
+  <div class="stage">
+    <!-- 0 sign up -->
+    <section class="screen" data-step="0" data-id="signup">
+      <div class="left">
+        <div class="logo"><span data-logo></span>Saylo</div>
+        <h1>Talk. It types.</h1>
+        <p class="sub">Speak naturally in any app. Saylo removes the ums, fixes your corrections, and writes it cleanly.</p>
+        <div class="field"><label for="name">Your name</label><input id="name" placeholder="First name" autocomplete="given-name"></div>
+        <div class="field"><label for="email">Email</label><input id="email" placeholder="you@company.com" type="email" autocomplete="email"></div>
+        <div class="err" id="signupErr"></div>
+        <button class="cta" id="signupBtn">Create account</button>
+        <div class="or">or</div>
+        <button class="ghost" id="googleBtn"><svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.6 9.2c0-.6-.1-1.2-.2-1.7H9v3.3h4.8a4 4 0 0 1-1.8 2.7v2.2h2.9c1.7-1.6 2.7-3.9 2.7-6.5z"/><path fill="#34A853" d="M9 18c2.4 0 4.5-.8 6-2.2l-2.9-2.2c-.8.5-1.8.9-3.1.9-2.4 0-4.4-1.6-5.1-3.8H.9v2.3A9 9 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.9 10.7a5.4 5.4 0 0 1 0-3.4V5H.9a9 9 0 0 0 0 8z"/><path fill="#EA4335" d="M9 3.6c1.3 0 2.5.5 3.5 1.4l2.6-2.6A9 9 0 0 0 .9 5l3 2.3C4.6 5.2 6.6 3.6 9 3.6z"/></svg>Continue with Google</button>
+        <p class="fine">By continuing you agree to the <b>Terms</b> and <b>Privacy Policy</b>. Accounts aren't connected to a server yet; your details stay on this computer.</p>
+      </div>
+      <div class="right">
+        <div class="hero">
+          <h2>Speak <em>3×</em> faster than you type</h2>
+          <div class="race">
+            <div class="lane"><small>Typing</small><div class="n" id="n1">0</div><div class="bar"><i id="b1"></i></div><small>words / min</small></div>
+            <div class="lane fast"><small>Speaking with Saylo</small><div class="n" id="n2">0</div><div class="bar"><i id="b2"></i></div><small>words / min</small></div>
+          </div>
+          <div class="ribbon"><div>Can you move our sync to Thursday? · Here's the plan for launch week. · Thanks, I'll send the report on Wednesday. · Quick update: designs are approved. · Can you move our sync to Thursday? · Here's the plan for launch week. · Thanks, I'll send the report on Wednesday. · Quick update: designs are approved. ·&nbsp;</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1 role -->
+    <section class="screen" data-step="1" data-id="role">
+      <div class="left">
+        <button class="back">← Back</button>
+        <h1>What do you do?</h1>
+        <p class="sub">Saylo tunes its writing to the way you work.</p>
+        <div class="chips single" data-key="role">
+          <button class="chip">Founder / CEO</button><button class="chip">Engineer</button><button class="chip">Product</button><button class="chip">Design</button><button class="chip">Marketing</button><button class="chip">Sales</button><button class="chip">Support</button><button class="chip">Writer / Creator</button><button class="chip">Student</button><button class="chip">Teacher</button><button class="chip">Healthcare</button><button class="chip">Legal</button><button class="chip">Something else</button>
+        </div>
+        <div class="grow"></div>
+        <button class="cta next" data-need="role">Continue</button>
+      </div>
+      <div class="right">
+        <svg class="illo float" viewBox="0 0 420 320" fill="none">
+          <rect x="40" y="40" width="340" height="230" rx="22" fill="#fff"/>
+          <rect x="70" y="78" width="120" height="12" rx="6" fill="#E7E1D8"/><rect x="70" y="102" width="200" height="12" rx="6" fill="#E7E1D8"/><rect x="70" y="126" width="160" height="12" rx="6" fill="#E7E1D8"/>
+          <rect x="70" y="170" width="86" height="34" rx="17" fill="#E2F3EC" stroke="#0E7C66"/><rect x="166" y="170" width="70" height="34" rx="17" fill="#fff" stroke="#E7E1D8"/><rect x="246" y="170" width="98" height="34" rx="17" fill="#fff" stroke="#E7E1D8"/>
+          <circle cx="330" cy="70" r="42" fill="#F4A259"/><path d="M314 70c0-6 4-9 8-9s8 3 8 9m6 6V58m8 22V54" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          <rect x="70" y="220" width="40" height="6" rx="3" fill="#0E7C66"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 2 places -->
+    <section class="screen" data-step="1" data-id="places">
+      <div class="left">
+        <button class="back">← Back</button>
+        <h1>Where do you write the most?</h1>
+        <p class="sub">Pick all that apply.</p>
+        <div class="chips" data-key="places">
+          <button class="chip" data-v="Chat & messages">💬 Chat &amp; messages</button><button class="chip" data-v="Email">✉️ Email</button><button class="chip" data-v="Docs & notes">📝 Docs &amp; notes</button><button class="chip" data-v="Prompts for AI">🤖 Prompts for AI</button><button class="chip" data-v="Code & tickets">⌨️ Code &amp; tickets</button><button class="chip" data-v="Social posts">📣 Social posts</button><button class="chip" data-v="Other">✨ Other</button>
+        </div>
+        <div class="grow"></div>
+        <button class="cta next" data-need="places">Continue</button>
+      </div>
+      <div class="right">
+        <svg class="illo float" viewBox="0 0 420 320" fill="none">
+          <rect x="60" y="50" width="200" height="130" rx="18" fill="#fff"/><rect x="80" y="76" width="90" height="10" rx="5" fill="#16141B"/><rect x="80" y="98" width="150" height="8" rx="4" fill="#E7E1D8"/><rect x="80" y="114" width="130" height="8" rx="4" fill="#E7E1D8"/>
+          <rect x="170" y="140" width="200" height="130" rx="18" fill="#16141B"/><rect x="192" y="166" width="70" height="10" rx="5" fill="#7FE0C2"/><rect x="192" y="188" width="150" height="8" rx="4" fill="#3A3F3D"/><rect x="192" y="204" width="110" height="8" rx="4" fill="#3A3F3D"/>
+          <circle cx="110" cy="230" r="34" fill="#F4A259"/><path d="M96 230h28M110 216v28" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 3 tone + source -->
+    <section class="screen" data-step="1" data-id="tone">
+      <div class="left">
+        <button class="back">← Back</button>
+        <h1>How should you sound?</h1>
+        <p class="sub">Your default writing tone. You can change it anytime.</p>
+        <div class="tones" id="tones">
+          <button class="tone" data-v="Casual"><b>Casual</b><small>hey, running 5 min late, start without me</small></button>
+          <button class="tone" data-v="Balanced"><b>Balanced</b><small>Running 5 minutes late. Please start without me.</small></button>
+          <button class="tone" data-v="Formal"><b>Formal</b><small>Apologies, I'm running five minutes late. Please begin without me.</small></button>
+        </div>
+        <p class="q">How did you hear about Saylo?</p>
+        <div class="chips single" data-key="source">
+          <button class="chip">A friend</button><button class="chip">YouTube</button><button class="chip">X / Twitter</button><button class="chip">LinkedIn</button><button class="chip">Search</button><button class="chip">Other</button>
+        </div>
+        <div class="grow"></div>
+        <button class="cta next">Continue</button>
+      </div>
+      <div class="right">
+        <div class="card">
+          <h3>Same words, your tone</h3>
+          <div class="raw">You said: <span style="color:var(--ink)">“um running like five minutes late uh start without me”</span></div>
+          <div class="app" style="margin-top:12px;border:0"><textarea id="toneOut" readonly></textarea></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 privacy + key -->
+    <section class="screen" data-step="2" data-id="privacy">
+      <div class="left">
+        <button class="back">← Back</button>
+        <h1>You're in control</h1>
+        <p class="sub">Saylo only listens while you hold the shortcut. Choose what's kept.</p>
+        <div class="rows">
+          <div class="row"><div class="ic">🎙️</div><div><b>Microphone access</b><p>Used only while the shortcut is held.</p></div><div class="end" id="micPerm"><span class="pill wait">Checking…</span></div></div>
+          <div class="row"><div class="ic">🕘</div><div><b>Keep history on this PC</b><p>Your dictations stay on this computer, for stats and search.</p></div><div class="end"><button class="toggle" data-pref="keep_history"></button></div></div>
+          <div class="row"><div class="ic">🌱</div><div><b>Help improve Saylo</b><p>Share anonymous usage numbers. Never your audio or text.</p></div><div class="end"><button class="toggle" data-pref="share_usage"></button></div></div>
+        </div>
+        <div class="keybox" id="keybox">
+          <button class="link" id="keyToggle" style="align-self:flex-start">Use your own Groq API key (optional)</button>
+          <div id="keyForm" class="hidden">
+            <p class="fine" style="margin:0 0 8px" id="keyNote">Free at console.groq.com → API Keys. Stored only on this computer.</p>
+            <div class="rowb"><input id="keyInput" type="password" placeholder="gsk_…"><button class="small-btn" id="keySave">Save key</button></div>
+            <div class="err" id="keyErr"></div>
+          </div>
+        </div>
+        <div class="grow"></div>
+        <button class="cta next" id="privacyNext">Continue</button>
+      </div>
+      <div class="right">
+        <svg class="illo float" viewBox="0 0 420 320" fill="none">
+          <path d="M210 40l120 44v74c0 70-52 112-120 132-68-20-120-62-120-132V84z" fill="#fff"/>
+          <path d="M210 66l96 35v57c0 55-41 89-96 106-55-17-96-51-96-106v-57z" fill="#E2F3EC"/>
+          <path d="M172 164l26 26 50-56" stroke="#0E7C66" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 5 microphone -->
+    <section class="screen" data-step="3" data-id="mic">
+      <div class="left">
+        <button class="back">← Back</button>
+        <h1>Pick your microphone</h1>
+        <p class="sub">Choose what you'll talk into, then say a few words. The bars should move with your voice.</p>
+        <div class="err" id="micErr"></div>
+        <div class="grow"></div>
+        <button class="cta next" id="micNext" disabled>The bars move, continue</button>
+      </div>
+      <div class="right">
+        <div class="card">
+          <h3>Say something. Do the bars move? <button class="refresh" id="micRefresh">↻ Refresh</button></h3>
+          <div class="devices" id="devs"></div>
+          <div class="meter" id="meter"></div>
+        </div>
+        <div class="tip"><svg width="40" height="40" viewBox="0 0 40 40" style="flex:none"><circle cx="20" cy="20" r="20" fill="#F4A259"/><path d="M14 22v-4a6 6 0 0 1 12 0v4M12 22h4v6h-4zM24 22h4v6h-4z" stroke="#fff" stroke-width="2" fill="none" stroke-linejoin="round"/></svg><div><b>QUICK TIP</b>Bluetooth headsets take about a second to wake up. Pause a beat after pressing the shortcut.</div></div>
+      </div>
+    </section>
+
+    <!-- 6 shortcut -->
+    <section class="screen" data-step="3" data-id="keys">
+      <div class="left">
+        <button class="back">← Back</button>
+        <h1>Your shortcut</h1>
+        <p class="sub">Hold <span data-hotkey></span> to talk, and let go to type. It works in every app.</p>
+        <div class="grow"></div>
+        <button class="cta next" id="keyNext" disabled>Continue</button>
+      </div>
+      <div class="right">
+        <div class="card">
+          <h3>Press and hold the keys together</h3>
+          <div class="keys" id="keycaps"></div>
+          <div class="ok" id="keyOk"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 try it -->
+    <section class="screen" data-step="4" data-id="try">
+      <div class="left">
+        <button class="back">← Back</button>
+        <h1>Now try it</h1>
+        <p class="sub">Click the box, hold <span data-hotkey></span>, and say something messy. Ums, repeats, “no wait”: Saylo cleans it up.</p>
+        <div class="fine" style="font-size:14px">Try: <i>“um not yet uh I'll send it tuesday no wait wednesday”</i></div>
+        <div class="grow"></div>
+        <button class="cta" id="finishBtn">Finish setup</button>
+      </div>
+      <div class="right">
+        <div class="card">
+          <div class="tabs" id="tabs"><button class="tab on">Message</button><button class="tab">Email</button><button class="tab">Note</button></div>
+          <div class="app">
+            <div class="app-top"><svg width="14" height="14" viewBox="0 0 14 14"><rect width="14" height="14" rx="4" fill="#0E7C66"/></svg><span id="appName"></span></div>
+            <div class="app-body">
+              <div class="msg" id="thread"></div>
+              <div class="raw" id="raw"></div>
+              <textarea id="tryBox" placeholder="Click here, then hold the shortcut and speak…"></textarea>
+            </div>
+          </div>
+          <div class="live" id="tryLive"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- ================= HOME ================= -->
+<div class="home hidden" id="home">
+  <aside class="side">
+    <div class="logo"><span data-logo></span>Saylo</div>
+    <button class="nav on" data-page="pHome">🏠 Home</button>
+    <button class="nav" data-page="pHistory">🕘 History</button>
+    <button class="nav" data-page="pSettings">⚙️ Settings</button>
+    <div class="nav dim">📖 Dictionary <span class="soon">Soon</span></div>
+    <div class="nav dim">✂️ Snippets <span class="soon">Soon</span></div>
+    <div class="foot"><b>Hold <span data-hotkey></span></b>Speak in any app and let go. Saylo types it for you.</div>
+  </aside>
+
+  <main class="page" id="pHome">
+    <h1 id="hello"></h1>
+    <div class="grid">
+      <div>
+        <div class="banner" id="banner">
+          <div><h2 id="bannerTitle">You're all set</h2><p id="bannerText">Saylo is running. Click into any app and hold the shortcut.</p><div class="status" id="status"><i></i><span></span></div></div>
+          <div class="wave"><i style="height:20px"></i><i style="height:44px"></i><i style="height:70px"></i><i style="height:36px"></i><i style="height:84px"></i><i style="height:40px"></i><i style="height:22px"></i></div>
+        </div>
+        <div class="hd"><span>TODAY</span></div>
+        <div class="list" id="today"></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="big" id="sWords">0<span>words</span></div><div class="big" id="sWpm">–<span>wpm</span></div><div class="big" id="sStreak">0<span>day streak</span></div></div>
+        <div class="stat">
+          <div class="line"><span>Shortcut</span><span data-hotkey></span></div>
+          <div class="line"><span>Microphone</span><select id="homeMic"></select></div>
+          <div class="line"><span>Tone</span><select id="homeTone"><option>Casual</option><option>Balanced</option><option>Formal</option></select></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <main class="page hidden" id="pHistory">
+    <div class="hd" style="margin-bottom:22px"><h1 style="margin:0;letter-spacing:-.02em;color:var(--ink)">History</h1><input class="search" id="search" placeholder="Search your dictations"></div>
+    <div class="list" id="allHist"></div>
+  </main>
+
+  <main class="page hidden" id="pSettings">
+    <h1>Settings</h1>
+    <div class="settings">
+      <div class="stat"><h3>Dictation</h3>
+        <div class="line"><span>Shortcut</span><span data-hotkey></span></div>
+        <div class="line"><span>Microphone</span><span style="display:flex;gap:8px"><select id="setMic"></select><button class="btn2" id="setMicRefresh">↻</button></span></div>
+        <div class="line"><span>Default tone <small style="color:var(--muted)">(saved for upcoming personalisation)</small></span><select id="setTone"><option>Casual</option><option>Balanced</option><option>Formal</option></select></div>
+      </div>
+      <div class="stat"><h3>Privacy</h3>
+        <div class="line"><span>Keep history on this PC</span><button class="toggle" data-pref="keep_history"></button></div>
+        <div class="line"><span>Help improve Saylo (anonymous usage)</span><button class="toggle" data-pref="share_usage"></button></div>
+        <div class="line"><span>Delete all history on this PC</span><button class="btn2 danger" id="clearHist">Delete history</button></div>
+      </div>
+      <div class="stat"><h3>Speech service</h3>
+        <div class="line"><span id="keyStatus"></span><span style="display:flex;gap:8px"><input class="search" style="width:200px;height:34px" id="setKey" type="password" placeholder="gsk_…"><button class="btn2" id="setKeySave">Save</button></span></div>
+      </div>
+      <div class="stat"><h3>App</h3>
+        <div class="line"><span>Run the setup again</span><button class="btn2" id="rerun">Run setup</button></div>
+        <div class="line"><span>Log file</span><button class="btn2" id="openLog">Open log</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
