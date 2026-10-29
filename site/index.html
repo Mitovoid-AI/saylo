@@ -108,6 +108,9 @@
   .plat .alt a{color:var(--accent);font-weight:500}
   .soon{display:inline-flex;align-self:flex-start;font:600 12px var(--sans);letter-spacing:.08em;text-transform:uppercase;background:var(--warm-soft);color:#9a5a1c;border-radius:999px;padding:6px 12px}
   .plat.off{background:transparent}
+  .install{font-size:14px;color:var(--muted);padding-left:18px;margin:-8px 0 22px;display:flex;flex-direction:column;gap:4px}
+  .install b{color:var(--ink);font-weight:600}
+  .install code{font-size:13px;background:var(--panel);border-radius:5px;padding:1px 5px}
 
   /* faq */
   .faq{max-width:760px}
@@ -153,7 +156,7 @@
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow">Voice to text for Windows</div>
+    <div class="eyebrow">Voice to text for Windows and Chrome</div>
     <h1>Say it messy.<br><em>Send it clean.</em></h1>
     <p class="lead">Hold <span class="kbd">Ctrl</span>+<span class="kbd">Win</span>, talk the way you think, let go. Saylo drops the ums, fixes your corrections and puts tidy text wherever your cursor is, in about a second.</p>
     <div class="ctas">
@@ -216,10 +219,19 @@
           <p class="alt">or the <a href="https://github.com/Mitovoid-AI/saylo/releases/latest/download/Saylo.exe">portable .exe</a> · <a href="https://github.com/Mitovoid-AI/saylo/releases">all releases</a></p>
         </div>
       </div>
-      <div class="plat off reveal">
-        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6E6A74" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5h8.3M8.97 13.75 4.8 6.6M15.03 13.75 10.9 20.9"/></svg></div>
-        <h3>Chrome</h3><p>A browser extension that adds Saylo to text boxes on any website.</p>
-        <div class="acts"><span class="soon">Coming soon</span></div>
+      <div class="plat reveal">
+        <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E7C66" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><path d="M12 8.5h8.3M8.97 13.75 4.8 6.6M15.03 13.75 10.9 20.9"/></svg></div>
+        <h3>Chrome</h3><p>Hold <span class="kbd">Alt</span>+<span class="kbd">Shift</span> in any text box on the web. Works in Chrome, Edge and Brave.</p>
+        <ol class="install">
+          <li>Download and unzip it into a folder you'll keep.</li>
+          <li>Open <code>chrome://extensions</code> and turn on <b>Developer mode</b>.</li>
+          <li>Click <b>Load unpacked</b> and pick that folder.</li>
+          <li>Add your Groq key on the setup page that opens.</li>
+        </ol>
+        <div class="acts">
+          <a class="btn green" style="justify-content:center" href="https://github.com/Mitovoid-AI/saylo/releases/latest/download/saylo-chrome.zip">Download extension</a>
+          <p class="alt">Chrome Web Store listing coming soon</p>
+        </div>
       </div>
       <div class="plat off reveal">
         <div class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6E6A74" stroke-width="1.8" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="3"/><path d="M10.5 18.5h3"/></svg></div>
@@ -239,7 +251,8 @@
       <details><summary>What happens to my voice?</summary><p>Saylo records only while you hold the shortcut. The clip goes directly from your PC to Groq to be turned into text and cleaned up; Saylo has no server in between. Your history is kept on your PC only, and you can switch it off or delete it.</p></details>
       <details><summary>Windows says “Windows protected your PC”. Is that safe?</summary><p>That warning appears for new apps that aren't code-signed yet. Click “More info”, then “Run anyway”. The installer is built automatically from the public code in the GitHub repository.</p></details>
       <details><summary>Which languages does it support?</summary><p>English for now.</p></details>
-      <details><summary>Can I change the shortcut?</summary><p>Not yet. The shortcut is Ctrl + Win, held down while you speak.</p></details>
+      <details><summary>Can I change the shortcut?</summary><p>Not yet. On Windows it's Ctrl + Win, and in Chrome it's Alt + Shift, held down while you speak.</p></details>
+      <details><summary>Why isn't the Chrome extension in the Web Store yet?</summary><p>The listing is on its way. Until then, install it with “Load unpacked” as shown above; Chrome shows a small developer-mode notice for extensions installed this way.</p></details>
     </div>
   </div>
 </section>

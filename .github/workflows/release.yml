@@ -1,5 +1,6 @@
-# Every push to main: build Saylo for Windows, publish a GitHub Release (v0.1.<run number>) with the
-# installer and the standalone exe, then deploy the website in site/ to GitHub Pages.
+# Every push to main: build Saylo for Windows and the Chrome extension, publish a GitHub Release
+# (v0.1.<run number>) with the installer, the standalone exe and saylo-chrome.zip, then deploy the
+# website in site/ to GitHub Pages.
 # Public builds carry no API key: users add their own free Groq key during setup.
 name: Release
 
@@ -17,11 +18,12 @@ concurrency:
   group: release
   cancel-in-progress: false
 
+env:
+  SAYLO_VERSION: 0.1.${{ github.run_number }}
+
 jobs:
   windows:
     runs-on: windows-latest
-    env:
-      SAYLO_VERSION: 0.1.${{ github.run_number }}
     steps:
       - uses: actions/checkout@v5
 
@@ -40,15 +42,47 @@ jobs:
           .\build.ps1
           if (-not (Test-Path dist\Saylo-Setup.exe)) { throw "Saylo-Setup.exe was not built" }
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            dist/Saylo-Setup.exe
+            dist/Saylo.exe
+
+  chrome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Package saylo-chrome.zip
+        run: |
+          jq --arg v "$SAYLO_VERSION" '.version = $v' extension/manifest.json > manifest.tmp
+          mv manifest.tmp extension/manifest.json
+          (cd extension && zip -qr ../saylo-chrome.zip .)
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: chrome
+          path: saylo-chrome.zip
+
+  release:
+    needs: [windows, chrome]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "v$env:SAYLO_VERSION" dist\Saylo-Setup.exe dist\Saylo.exe `
-            --title "Saylo $env:SAYLO_VERSION" --target $env:GITHUB_SHA --generate-notes
+          gh release create "v$SAYLO_VERSION" out/Saylo-Setup.exe out/Saylo.exe out/saylo-chrome.zip \
+            --repo "$GITHUB_REPOSITORY" --title "Saylo $SAYLO_VERSION" --target "$GITHUB_SHA" --generate-notes
 
   pages:
-    needs: windows
+    needs: release
     runs-on: ubuntu-latest
     environment:
       name: github-pages
