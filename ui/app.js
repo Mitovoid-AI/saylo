@@ -227,9 +227,45 @@ $('#finishBtn').onclick = async () => { await api.finish(); st.onboarded = true;
 
 // ---------------- home ----------------
 function fmtTime(t) { return new Date(t).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}).toLowerCase(); }
+const ICON_RETRY = '<svg viewBox="0 0 16 16" width="12" height="12"><path d="M13 8a5 5 0 1 1-1.5-3.6M13 2.5v2.9h-2.9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_FOLDER = '<svg viewBox="0 0 16 16" width="12" height="12"><path d="M2 4h4.2l1.5 1.6H14V13H2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+const GONE = 'This recording was deleted. Audio is kept for 30 days.';
 function entryHtml(e, isNew) {
-  return `<div class="entry ${isNew ? 'new' : ''}"><time>${fmtTime(e.t)}</time><div>${esc(e.text)}</div><em>${(e.total_ms / 1000).toFixed(1)} s</em></div>`;
+  const tools = e.audio ? `<span class="tools" data-audio="${esc(e.audio)}"><button class="play" title="Play recording">▶</button>`
+    + `<button class="retry" title="${e.pending ? 'Try sending now' : 'Transcribe again'}">${ICON_RETRY}</button><button class="folder" title="Show in folder">${ICON_FOLDER}</button></span>` : '';
+  // A clip saved while offline has no text yet; one Groq couldn't read keeps its audio to try again.
+  const text = e.pending ? '<span class="note">Waiting to send. Saved on this PC; it goes as soon as you’re back online.</span>'
+    : e.failed ? '<span class="note">Couldn’t transcribe this recording. Press ↻ to try again.</span>' : esc(e.text);
+  return `<div class="entry ${isNew ? 'new' : ''} ${e.pending ? 'pending' : ''}"><time>${fmtTime(e.t)}</time><div>${text}</div><em>${tools}${e.pending ? 'waiting' : (e.total_ms / 1000).toFixed(1) + ' s'}</em></div>`;
 }
+// Play (one recording at a time; pressing the playing one stops it), transcribe again, show in folder.
+let player = null, playBtn = null;
+document.addEventListener('click', async ev => {
+  const b = ev.target.closest('.tools button'); if (!b) return;
+  const name = b.parentElement.dataset.audio;
+  if (b.classList.contains('folder')) {
+    if (!await api.show_audio(name)) toast(GONE);
+  } else if (b.classList.contains('retry')) {
+    if (b.disabled) return;
+    b.disabled = true; b.classList.add('busy');
+    const r = await api.retry(name);
+    b.disabled = false; b.classList.remove('busy');
+    if (!r.ok) return toast(r.error, true);
+    if (r.queued) return toast('Trying to send it now…');
+    // The same entry can be on Today and in History.
+    if (r.entry) $$('.tools').filter(t => t.dataset.audio === name).forEach(t => t.closest('.entry').children[1].textContent = r.entry.text);
+    renderStats(r.stats); toast('Transcribed again');
+  } else {
+    const same = b === playBtn;
+    if (player) { player.pause(); playBtn.textContent = '▶'; player = playBtn = null; }
+    if (same) return;
+    const url = await api.audio(name);
+    if (!url) return toast(GONE);
+    player = new Audio(url); playBtn = b; b.textContent = '■';
+    player.onended = () => { if (playBtn === b) { b.textContent = '▶'; player = playBtn = null; } };
+    player.play();
+  }
+});
 function renderStats(s) {
   $('#sWords').innerHTML = `${s.words.toLocaleString()}<span>words</span>`;
   $('#sWpm').innerHTML = `${s.wpm || '–'}<span>wpm</span>`;
@@ -275,10 +311,18 @@ async function showHome() {
       setStatus('', readyText());
       if (ev.kind === 'result') {
         renderStats(ev.stats);
-        const empty = $('#today .empty'); if (empty) empty.remove();
-        $('#today').insertAdjacentHTML('afterbegin', entryHtml(ev.entry, true));
+        if (ev.delayed || $('#today .entry.pending')) renderToday();  // replaces its "Waiting to send" row
+        else {
+          const empty = $('#today .empty'); if (empty) empty.remove();
+          $('#today').insertAdjacentHTML('afterbegin', entryHtml(ev.entry, true));
+        }
         if (!$('#pHistory').classList.contains('hidden')) renderHistory();
-        if (ev.raw_pasted) toast('Cleanup was busy, so your words were pasted as heard.');
+        if (!ev.pasted) toast('Your dictation is on the clipboard. Press Ctrl+V to paste it.');
+        else if (ev.raw_pasted) toast('Cleanup was busy, so your words were pasted as heard.');
+      } else if (ev.kind === 'offline') {
+        toast(ev.message);
+        renderToday();
+        if (!$('#pHistory').classList.contains('hidden')) renderHistory();
       } else if (ev.kind === 'skipped') toast('Didn’t catch that. Hold the keys a little longer.');
       else if (ev.kind === 'error') toast(ev.message, true);
     }
@@ -289,7 +333,27 @@ $$('.nav[data-page]').forEach(n => n.onclick = () => {
   $$('.nav[data-page]').forEach(x => x.classList.toggle('on', x === n));
   $$('.page').forEach(p => p.classList.toggle('hidden', p.id !== n.dataset.page));
   if (n.dataset.page === 'pHistory') renderHistory();
+  if (n.dataset.page === 'pDictionary') renderDictionary();
 });
+
+// ---------------- dictionary ----------------
+async function renderDictionary(words) {
+  words = words || await api.dictionary();
+  $('#dictList').innerHTML = words.length
+    ? words.map(w => `<span class="chip">${esc(w)}<button class="x" data-word="${esc(w)}" title="Remove">×</button></span>`).join('')
+    : '<div class="empty" style="width:100%">No words yet. Add names or terms Saylo gets wrong, like your company or a product.</div>';
+}
+$('#dictForm').onsubmit = async ev => {
+  ev.preventDefault();
+  const added = $('#dictInput').value.split(',').map(w => w.trim()).filter(Boolean);
+  if (!added.length) return;
+  renderDictionary(await api.set_dictionary([...await api.dictionary(), ...added]));
+  $('#dictInput').value = '';
+};
+$('#dictList').onclick = async ev => {
+  const x = ev.target.closest('.x'); if (!x) return;
+  renderDictionary(await api.set_dictionary((await api.dictionary()).filter(w => w !== x.dataset.word)));
+};
 $('#search').oninput = () => { clearTimeout(renderHistory._t); renderHistory._t = setTimeout(renderHistory, 200); };
 ['#homeMic', '#setMic'].forEach(id => $(id).onchange = async e => {
   await api.set_mic(e.target.value || null); fillMicSelects(); toast('Microphone updated');
@@ -299,7 +363,7 @@ $('#setMicRefresh').onclick = () => fillMicSelects(true);
   save({tone: e.target.value}); ['#homeTone', '#setTone'].forEach(x => $(x).value = e.target.value);
 });
 $('#clearHist').onclick = async () => {
-  if (!confirm('Delete all saved dictations on this PC? This can’t be undone.')) return;
+  if (!confirm('Delete all saved dictations and recordings on this PC? This can’t be undone.')) return;
   renderStats(await api.clear_history()); renderToday(); toast('History deleted');
 };
 $('#setKeySave').onclick = async () => {

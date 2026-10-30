@@ -44,6 +44,8 @@ BENCHMARK_MODELS = [m.strip() for m in os.getenv("BENCHMARK_MODELS", CLEANUP_MOD
 
 SAMPLE_RATE = 16000
 MIN_CLIP_SECONDS = 0.3
+# Clips with less clearly-voiced audio than this are skipped without calling Whisper (see recorder.speech_ms).
+MIN_SPEECH_MS = 120
 
 
 def cleanup_key() -> str:

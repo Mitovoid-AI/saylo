@@ -4,8 +4,10 @@
 
 - Drops filler words (um, uh, like, you know) and accidental repeats
 - Keeps only your final version when you correct yourself ("Tuesday, no wait, Wednesday" → "Wednesday")
-- Turns spoken lists ("first… second…") into numbered lists
+- Turns spoken lists ("first… second…", "my shopping list is…") into numbered lists
 - Never answers or rewrites what you said, it only cleans it up
+
+On Windows you also get a "Listening" pill above the taskbar while you hold the shortcut, a Dictionary of names and words Saylo should spell your way, a tone setting (Casual, Balanced or Formal), and History with play, transcribe-again and show-in-folder for each recording. Every clip is saved on your PC before it is sent, so if the internet drops, Saylo keeps it, retries on its own (even after a restart) and pastes it when you're back online: into the same window if you're still there, otherwise onto the clipboard.
 
 **Website and downloads:** https://mitovoid-ai.github.io/saylo/
 
@@ -38,15 +40,15 @@ Groq's free tier is enough for normal personal use. Its limits are per Groq acco
 
 ## Privacy
 
-Saylo only records while you hold the shortcut or mic key. The audio goes straight from your device to Groq to be transcribed and cleaned; Saylo has no server of its own. On Windows, your dictation history is kept on your PC only, and you can turn it off or delete it.
+Saylo only records while you hold the shortcut or mic key. The audio goes straight from your device to Groq to be transcribed and cleaned; Saylo has no server of its own. On Windows, your dictation history (the text, plus each recording for 30 days so you can replay it) is kept on your PC only, and you can turn it off or delete it.
 
 ## Repository layout
 
 | Path | What it is |
 |---|---|
-| `app.py`, `ui/` | Windows app: pywebview window (onboarding, home, settings), tray, corner popup |
-| `asr.py`, `cleaner.py`, `pipeline.py` | Speech → raw text (Groq Whisper) → clean text (LLM) → paste |
-| `recorder.py`, `hotkey.py`, `inserter.py`, `store.py`, `tray.py` | Microphone, hold-to-talk hotkey, clipboard paste, local settings and history, tray icon |
+| `app.py`, `ui/`, `pill.py` | Windows app: pywebview window (onboarding, home, history, dictionary, settings), tray, corner popup, and the listening pill (a native see-through window drawn with Pillow) |
+| `asr.py`, `cleaner.py`, `pipeline.py` | Speech → raw text (Groq Whisper) → clean text (LLM) → paste. The cleanup prompt is copied in `extension/groq.js` and `android/.../Groq.kt`: change all three together |
+| `recorder.py`, `hotkey.py`, `inserter.py`, `store.py`, `tray.py` | Microphone (plus silence check and MP3 for history), hold-to-talk hotkey, clipboard paste, local settings, history and dictionary, tray icon |
 | `build.ps1`, `installer.iss` | Builds `dist/Saylo.exe` (PyInstaller) and `dist/Saylo-Setup.exe` (Inno Setup) |
 | `benchmark.py`, `main.py` | Cleanup model benchmark and a console runner |
 | `extension/` | Chrome extension (Manifest V3) |

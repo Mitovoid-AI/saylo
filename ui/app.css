@@ -181,6 +181,18 @@ select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background
 .entry:last-child{border-radius:0 0 14px 14px}.entry:only-child{border-radius:14px}
 .entry time{color:var(--muted);font-size:13px;padding-top:2px}
 .entry em{font-style:normal;font-size:12px;color:var(--muted);white-space:nowrap;padding-top:3px}
+.entry>div{white-space:pre-line}
+.entry .note{color:var(--muted);font-style:italic}
+.entry .tools{display:inline-flex;gap:6px;margin-right:10px;vertical-align:middle}
+.entry .tools button{border:0;background:var(--accent-soft);color:var(--accent-ink);border-radius:50%;width:24px;height:24px;font-size:10px;cursor:pointer;display:grid;place-items:center;padding:0}
+.entry .tools button:hover{background:var(--accent);color:#fff}
+.entry .tools .busy svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dict-add{display:flex;gap:8px;max-width:560px;margin-bottom:18px}
+.dict-add .search{flex:1;width:auto}
+.chips.dict{max-width:720px}
+.chip .x{border:0;background:none;color:var(--muted);font-size:16px;line-height:1;padding:0 0 1px;cursor:pointer}
+.chip .x:hover{color:var(--err)}
 .entry.new{animation:flash 1.6s}
 @keyframes flash{from{background:var(--accent-soft)}}
 .empty{border:1px dashed #D9D3CA;border-radius:14px;padding:28px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6}

@@ -123,7 +123,7 @@
         <p class="sub">Saylo only listens while you hold the shortcut. Choose what's kept.</p>
         <div class="rows">
           <div class="row"><div class="ic">🎙️</div><div><b>Microphone access</b><p>Used only while the shortcut is held.</p></div><div class="end" id="micPerm"><span class="pill wait">Checking…</span></div></div>
-          <div class="row"><div class="ic">🕘</div><div><b>Keep history on this PC</b><p>Your dictations stay on this computer, for stats and search.</p></div><div class="end"><button class="toggle" data-pref="keep_history"></button></div></div>
+          <div class="row"><div class="ic">🕘</div><div><b>Keep history on this PC</b><p>Your dictations and their audio stay on this computer, for stats, search and playback. Audio is deleted after 30 days.</p></div><div class="end"><button class="toggle" data-pref="keep_history"></button></div></div>
           <div class="row"><div class="ic">🌱</div><div><b>Help improve Saylo</b><p>Share anonymous usage numbers. Never your audio or text.</p></div><div class="end"><button class="toggle" data-pref="share_usage"></button></div></div>
         </div>
         <div class="keybox" id="keybox">
@@ -219,7 +219,7 @@
     <button class="nav on" data-page="pHome">🏠 Home</button>
     <button class="nav" data-page="pHistory">🕘 History</button>
     <button class="nav" data-page="pSettings">⚙️ Settings</button>
-    <div class="nav dim">📖 Dictionary <span class="soon">Soon</span></div>
+    <button class="nav" data-page="pDictionary">📖 Dictionary</button>
     <div class="nav dim">✂️ Snippets <span class="soon">Soon</span></div>
     <div class="foot"><b>Hold <span data-hotkey></span></b>Speak in any app and let go. Saylo types it for you.</div>
   </aside>
@@ -251,13 +251,20 @@
     <div class="list" id="allHist"></div>
   </main>
 
+  <main class="page hidden" id="pDictionary">
+    <h1>Dictionary</h1>
+    <p class="sub" style="max-width:560px;margin-bottom:20px">Names, brands and words Saylo should always spell your way. They go with every dictation as spelling hints.</p>
+    <form class="dict-add" id="dictForm"><input class="search" id="dictInput" maxlength="200" autocomplete="off" placeholder="Add a word, or a few separated by commas"><button class="btn2" type="submit">Add</button></form>
+    <div class="chips dict" id="dictList"></div>
+  </main>
+
   <main class="page hidden" id="pSettings">
     <h1>Settings</h1>
     <div class="settings">
       <div class="stat"><h3>Dictation</h3>
         <div class="line"><span>Shortcut</span><span data-hotkey></span></div>
         <div class="line"><span>Microphone</span><span style="display:flex;gap:8px"><select id="setMic"></select><button class="btn2" id="setMicRefresh">↻</button></span></div>
-        <div class="line"><span>Default tone <small style="color:var(--muted)">(saved for upcoming personalisation)</small></span><select id="setTone"><option>Casual</option><option>Balanced</option><option>Formal</option></select></div>
+        <div class="line"><span>Tone <small style="color:var(--muted)">(Formal polishes your wording; Casual keeps it relaxed)</small></span><select id="setTone"><option>Casual</option><option>Balanced</option><option>Formal</option></select></div>
       </div>
       <div class="stat"><h3>Privacy</h3>
         <div class="line"><span>Keep history on this PC</span><button class="toggle" data-pref="keep_history"></button></div>

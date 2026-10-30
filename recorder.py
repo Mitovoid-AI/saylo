@@ -1,8 +1,10 @@
 """Mic capture into memory, returned as 16 kHz mono 16-bit WAV bytes."""
+import array
 import io
 import threading
 import wave
 
+import lameenc
 import sounddevice as sd
 
 from config import SAMPLE_RATE
@@ -52,13 +54,17 @@ class Recorder:
         self._chunks: list[bytes] = []
         self._lock = threading.Lock()
         self._stream: sd.RawInputStream | None = None
+        self.level = 0  # loudness of the latest chunk, 0-100
 
     def _callback(self, data, frames, time_info, status):
+        chunk = bytes(data)
+        self.level = level(chunk)
         with self._lock:
-            self._chunks.append(bytes(data))
+            self._chunks.append(chunk)
 
     def start(self, device: int | None = None):
         self._chunks = []
+        self.level = 0
         self._stream = sd.RawInputStream(
             device=device, samplerate=self.sample_rate, channels=1, dtype="int16", callback=self._callback
         )
@@ -81,3 +87,36 @@ class Recorder:
             w.setframerate(self.sample_rate)
             w.writeframes(pcm)
         return buf.getvalue(), seconds
+
+
+def speech_ms(wav: bytes) -> int:
+    """Milliseconds of the clip that are clearly louder than the clip's own background (30 ms frames).
+    Silence, steady room noise and single clicks score near 0; Whisper turns those into "Thank you."
+    or "you", so the pipeline skips them before calling it."""
+    with wave.open(io.BytesIO(wav)) as w:
+        pcm = array.array("h", w.readframes(w.getnframes()))
+    n = SAMPLE_RATE * 30 // 1000
+    # Leading zeros while a Bluetooth mic wakes up are not background, so all-zero frames are left out.
+    peaks = sorted(p for i in range(0, len(pcm) - n + 1, n) if (p := max(-min(pcm[i:i + n]), max(pcm[i:i + n]))))
+    if not peaks:
+        return 0
+    background = peaks[len(peaks) // 5]
+    return 30 * sum(p > max(3 * background, 300) for p in peaks)
+
+
+def level(chunk: bytes) -> int:
+    """Loudness of one mic chunk, 0-100, for the listening pill's bars."""
+    samples = array.array("h", chunk)
+    return min(100, max(-min(samples, default=0), max(samples, default=0)) // 120)
+
+
+def to_mp3(wav: bytes) -> bytes:
+    """Compresses a clip for keeping in the history: 32 kbps mono, about 8x smaller than the WAV."""
+    with wave.open(io.BytesIO(wav)) as w:
+        rate, pcm = w.getframerate(), w.readframes(w.getnframes())
+    enc = lameenc.Encoder()
+    enc.set_bit_rate(32)
+    enc.set_in_sample_rate(rate)
+    enc.set_channels(1)
+    enc.set_quality(5)
+    return bytes(enc.encode(pcm) + enc.flush())

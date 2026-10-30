@@ -18,6 +18,10 @@ SENTENCES = [
      "No, not right now. I will send you tomorrow. There are two steps:\n1. Open Gmail.\n2. Write the Gmail text and mail."),
     ("three things for today um number one fix the login bug number two update the docs and number three email sam",
      "Three things for today:\n1. Fix the login bug.\n2. Update the docs.\n3. Email Sam."),
+    # Announced lists ("my shopping list is ...") should be numbered too; a series inside a sentence should not.
+    ("my shopping list is bread eggs milk and two packets of biscuits",
+     "My shopping list is:\n1. Bread\n2. Eggs\n3. Milk\n4. Two packets of biscuits"),
+    ("i bought bread eggs and milk on my way home", "I bought bread, eggs, and milk on my way home."),
     ("i have two kids and one dog", "I have two kids and one dog."),
     ("first i went home and then i slept for like ten hours", "First I went home and then I slept for ten hours."),
 ]
