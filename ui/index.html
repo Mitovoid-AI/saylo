@@ -221,6 +221,7 @@
     <button class="nav" data-page="pSettings">⚙️ Settings</button>
     <button class="nav" data-page="pDictionary">📖 Dictionary</button>
     <div class="nav dim">✂️ Snippets <span class="soon">Soon</span></div>
+    <button class="nav" id="checkUpdate">🔄 Check for updates</button>
     <div class="foot"><b>Hold <span data-hotkey></span></b>Speak in any app and let go. Saylo types it for you.</div>
   </aside>
 
@@ -277,9 +278,20 @@
       <div class="stat"><h3>App</h3>
         <div class="line"><span>Run the setup again</span><button class="btn2" id="rerun">Run setup</button></div>
         <div class="line"><span>Log file</span><button class="btn2" id="openLog">Open log</button></div>
+        <div class="line"><span>Version</span><span id="appVersion"></span></div>
       </div>
     </div>
   </main>
+</div>
+
+<div class="modal hidden" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="updTitle">
+  <div class="box">
+    <h2 id="updTitle">A new version of Saylo is out</h2>
+    <p id="updText"></p>
+    <div class="bar hidden" id="updBar"><i></i></div>
+    <p class="fine" id="updNote"></p>
+    <div class="acts"><button class="btn2" id="updLater">Later</button><button class="cta" id="updGet">Update now</button></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>

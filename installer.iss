@@ -43,17 +43,39 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 
 [Run]
 Filename: "{app}\Saylo.exe"; Description: "Open Saylo now"; Flags: postinstall nowait skipifsilent
+; In-app updates run this installer silently with /relaunch=1: open the new version when it's done.
+Filename: "{app}\Saylo.exe"; Flags: nowait; Check: Relaunch
 
 [Code]
-// Saylo keeps running in the tray, which locks Saylo.exe. Ask it to quit before files are replaced or removed.
+function SayloRunning(): Boolean;
+var
+  Locator, Wmi, Found: Variant;
+begin
+  try
+    Locator := CreateOleObject('WbemScripting.SWbemLocator');
+    Wmi := Locator.ConnectServer('.', 'root\CIMV2');
+    Found := Wmi.ExecQuery('SELECT ProcessId FROM Win32_Process WHERE Name = ''Saylo.exe''');
+    Result := Found.Count > 0;
+  except
+    Result := False;
+  end;
+end;
+
+// Saylo keeps running in the tray, which locks Saylo.exe. Ask it to quit before files are replaced or removed,
+// and wait (up to 10 s) until it has exited: an in-app update starts this installer while Saylo is closing.
 procedure QuitRunningSaylo(Exe: String);
 var
-  Code: Integer;
+  Code, I: Integer;
 begin
   if FileExists(Exe) then
   begin
     Exec(Exe, '--quit', '', SW_HIDE, ewWaitUntilTerminated, Code);
-    Sleep(2000);
+    for I := 1 to 20 do
+    begin
+      if not SayloRunning() then
+        Break;
+      Sleep(500);
+    end;
   end;
 end;
 
@@ -61,6 +83,11 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
   QuitRunningSaylo(ExpandConstant('{app}\Saylo.exe'));
   Result := '';
+end;
+
+function Relaunch(): Boolean;
+begin
+  Result := ExpandConstant('{param:relaunch|0}') = '1';
 end;
 
 function InitializeUninstall(): Boolean;

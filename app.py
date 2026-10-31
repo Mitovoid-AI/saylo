@@ -26,6 +26,7 @@ import context
 import pipeline
 import store
 import tray
+import updates
 from hotkey import HoldHotkey
 from pill import Pill
 from recorder import Recorder, is_bluetooth, list_input_devices, resolve_device, to_mp3
@@ -49,6 +50,7 @@ HINT_SECONDS = 2  # how long the spoken commands show above the pill after the s
 # Hands-free: tap the shortcut twice quickly and listening stays on after letting go; the next press ends it.
 TAP_SECONDS = 0.35  # a press shorter than this may be the first of the two taps
 DOUBLE_TAP_GAP = 0.4  # how long after that first tap a second press still counts
+UPDATE_PROMPTS_PER_DAY = 3  # the "new version" dialog shows on opening the window at most this often a day
 
 
 def _is_rate_limit(e: Exception) -> bool:
@@ -153,6 +155,7 @@ class Api:
         self._hk.start()
         threading.Thread(target=self._worker, daemon=True).start()
         threading.Thread(target=store.prune_audio, daemon=True).start()
+        threading.Thread(target=updates.cleanup, daemon=True).start()
 
     # ---------- events to the page ----------
     def _emit(self, kind: str, **data):
@@ -350,6 +353,7 @@ class Api:
             "has_default_key": bool(config.GROQ_API_KEY) and not config.HAS_USER_KEY,
             "stats": store.stats(),
             "log_path": str(config.APP_DIR / "app.log"),
+            "version": config.VERSION,
         }
 
     def save_profile(self, patch: dict) -> dict:
@@ -417,6 +421,41 @@ class Api:
 
     def open_log(self):
         os.startfile(config.APP_DIR / "app.log")
+
+    # ---------- updates ----------
+    def update_check(self, manual: bool = False) -> dict:
+        """Whether a newer Saylo is out. The page asks when the window opens (manual=False) and shows the
+        update dialog when "show" is set, which is at most UPDATE_PROMPTS_PER_DAY times a day. The sidebar's
+        Check for updates asks with manual=True and gets a fresh answer every time."""
+        info = {**updates.check(force=manual), "show": False}
+        if info["available"] and not manual and self._visible:
+            today = time.strftime("%Y-%m-%d")
+            shown = store.settings().get("update_prompts", {})
+            count = shown.get("count", 0) if shown.get("day") == today else 0
+            if count < UPDATE_PROMPTS_PER_DAY:
+                store.update_settings(update_prompts={"day": today, "count": count + 1})
+                info["show"] = True
+        return info
+
+    def update_download(self) -> dict:
+        return updates.download()
+
+    def update_status(self) -> dict:
+        return updates.status()
+
+    def install_update(self) -> dict:
+        """Runs the downloaded installer silently and quits. The installer replaces Saylo.exe and, because of
+        /relaunch=1, opens the new version when it's done."""
+        path = updates.installer()
+        if not path:
+            return {"ok": False, "error": "The update isn't downloaded yet."}
+        log.info("installing update from %s", path.name)
+        # PYINSTALLER_RESET_ENVIRONMENT: the Saylo.exe the installer opens is a fresh app, not a child of this one.
+        subprocess.Popen([str(path), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/relaunch=1"],
+                         env={**os.environ, "PYINSTALLER_RESET_ENVIRONMENT": "1"},
+                         creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
+        threading.Timer(0.5, self._quit).start()  # after the page has its answer
+        return {"ok": True}
 
     # ---------- API key ----------
     def check_key(self, key: str) -> dict:
@@ -505,6 +544,7 @@ class Api:
             return True
         self.meter_stop()
         self._window.hide()
+        self._visible = False
         log.info("window hidden to tray")
         if not store.settings().get("tray_tip_shown"):
             store.update_settings(tray_tip_shown=True)
@@ -513,11 +553,17 @@ class Api:
         return False
 
     def _show_window(self):
+        opened = not self._visible
+        self._visible = True
         self._window.show()
         self._window.restore()
+        if opened:
+            self._emit("opened")  # the page checks for a newer version
 
     def _quit(self):
-        log.info("quit from tray")
+        if self._quitting:  # an update quits Saylo, then the installer asks it to quit as well
+            return
+        log.info("quitting")
         self._quitting = True
         self._popup.close()
         self._pill.close()
@@ -540,6 +586,7 @@ def main():
                                    width=1120, height=740, min_size=(940, 640), background_color="#FBF9F6")
     api._window = window
     api._quitting = False
+    api._visible = not hidden
     api._popup = TrayPopup(on_open=api._show_window)
     api._tray = tray.start_tray(on_open=api._show_window, on_quit=api._quit)
     tray.serve_commands({"show": api._show_window, "quit": api._quit})

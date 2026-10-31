@@ -1,5 +1,5 @@
 """Loads settings, first match wins: %APPDATA%\\Saylo\\.env (the user's own key from onboarding),
-then .env next to the app, then bundled.env packed into the exe (the built-in default key)."""
+then .env next to the app, then bundled.env packed into the exe (the built-in default key and the version)."""
 import os
 import sys
 from pathlib import Path
@@ -19,6 +19,9 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 # True when the user entered their own key; otherwise GROQ_API_KEY (if set) is the built-in default.
 HAS_USER_KEY = bool(USER_ENV.exists() and dotenv_values(USER_ENV).get("GROQ_API_KEY"))
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+# "0.1.9" in release builds: build.ps1 packs it into bundled.env, which wins here so a SAYLO_VERSION left in the
+# environment (an update started from a source run passes its own on) can't mislabel the exe. Else "dev".
+VERSION = dotenv_values(BUNDLED_ENV).get("SAYLO_VERSION") or os.getenv("SAYLO_VERSION") or "dev"
 
 HOTKEY = os.getenv("HOTKEY", "ctrl+cmd")
 

@@ -303,10 +303,12 @@ async function showHome() {
   $('#hello').textContent = (h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening') + (profile.name ? `, ${profile.name}` : '');
   ['#homeTone', '#setTone'].forEach(id => $(id).value = profile.tone || 'Balanced');
   $('#keyStatus').textContent = st.has_user_key ? 'Using your own Groq key' : st.has_default_key ? 'Using the built-in key' : 'No key set';
+  $('#appVersion').textContent = st.version;
   syncToggles(); setStatus('', readyText());
-  renderStats(await api.stats()); renderToday(); fillMicSelects();
+  renderStats(await api.stats()); renderToday(); fillMicSelects(); checkUpdate();
   listeners = [ev => {
-    if (ev.kind === 'recording') setStatus('rec', 'Recording… let go when you’re done');
+    if (ev.kind === 'opened') checkUpdate();
+    else if (ev.kind === 'recording') setStatus('rec', 'Recording… let go when you’re done');
     else if (ev.kind === 'locked') setStatus('rec', `Hands-free… press ${st.hotkey.join(' + ')} when you’re done`);
     else if (ev.kind === 'processing') setStatus('proc', 'Cleaning up…');
     else {
@@ -375,3 +377,66 @@ $('#setKeySave').onclick = async () => {
 };
 $('#rerun').onclick = async () => { await api.restart_setup(); st.onboarded = false; showOnb(0); };
 $('#openLog').onclick = () => api.open_log();
+
+// ---------------- updates ----------------
+// Opening the window asks whether a newer Saylo is out; Python decides if the dialog may show (a few times a
+// day). The sidebar's Check for updates always answers, with the dialog or a toast. In the dialog, Update now
+// downloads the installer inside Saylo (progress bar), then Install now updates Saylo and reopens it.
+let updState = 'idle', updPoll = null;
+const mb = n => (n / 1048576).toFixed(1);
+function showUpdateState(s) {
+  updState = s.state;
+  const busy = s.state === 'downloading' || s.state === 'installing', pct = s.total ? Math.floor(s.done / s.total * 100) : 0;
+  $('#updBar').classList.toggle('hidden', s.state === 'idle' || s.state === 'failed');
+  $('#updBar i').style.width = (s.state === 'downloading' ? pct : 100) + '%';
+  $('#updNote').textContent = {
+    idle: 'Saylo downloads the update, then closes, installs it and opens again. Your settings, history and dictionary stay.',
+    downloading: `Downloading… ${pct}% (${mb(s.done)} of ${mb(s.total)} MB)`,
+    ready: 'Downloaded. Install now and Saylo closes, updates and opens again in a few seconds.',
+    installing: 'Installing… Saylo will open again in a few seconds.',
+    failed: `The download didn’t finish. ${s.error}`,
+  }[s.state];
+  $('#updGet').textContent = {ready: 'Install now', failed: 'Try again'}[s.state] || 'Update now';
+  [$('#updGet'), $('#updLater')].forEach(b => b.classList.toggle('hidden', busy));
+}
+function followDownload() {
+  clearInterval(updPoll);
+  updPoll = setInterval(async () => {
+    const s = await api.update_status();
+    showUpdateState(s);
+    if (s.state !== 'downloading') { clearInterval(updPoll); if (s.state === 'ready') $('#updGet').focus(); }
+  }, 200);
+}
+async function checkUpdate(manual = false) {
+  if (!$('#updateModal').classList.contains('hidden')) return;
+  const u = await api.update_check(manual);
+  if (u.show || (manual && u.available)) {
+    $('#updText').innerHTML = `Saylo <b>${esc(u.latest)}</b> is ready to install. You have ${esc(u.current)}.`;
+    showUpdateState(u.download.version === u.latest ? u.download : {state: 'idle'});
+    $('#updateModal').classList.remove('hidden'); $('#updGet').focus();
+    if (updState === 'downloading') followDownload();
+  } else if (manual) {
+    toast(!u.latest ? 'Couldn’t check for updates. Check your internet connection.'
+      : u.current === 'dev' ? `This is a development build. The latest release is ${u.latest}.`
+      : `You’re on the latest version (${u.current}).`, !u.latest);
+  }
+}
+const closeUpdate = () => { if (updState !== 'downloading' && updState !== 'installing') $('#updateModal').classList.add('hidden'); };
+$('#updLater').onclick = closeUpdate;
+$('#updGet').onclick = async () => {
+  if (updState === 'ready') {
+    showUpdateState({state: 'installing'});
+    const r = await api.install_update();
+    if (!r.ok) showUpdateState({state: 'failed', error: r.error});
+  } else {
+    showUpdateState(await api.update_download());
+    if (updState === 'downloading') followDownload();
+  }
+};
+$('#updateModal').onclick = e => { if (e.target.id === 'updateModal') closeUpdate(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeUpdate(); });
+$('#checkUpdate').onclick = async () => {
+  const b = $('#checkUpdate'); if (b.disabled) return;
+  b.disabled = true; b.classList.add('busy');
+  try { await checkUpdate(true); } finally { b.disabled = false; b.classList.remove('busy'); }
+};

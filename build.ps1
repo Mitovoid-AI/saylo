@@ -2,15 +2,22 @@
 # is installed (winget install JRSoftware.InnoSetup). Run from this folder: .\build.ps1
 # The GROQ_API_KEY line from .env is packed in as the built-in default key (used when the user skips
 # the key step). Anyone with the exe can extract it: only share builds with people you trust.
+# SAYLO_VERSION (set by the release workflow) is packed in too, so the app can tell when a newer release
+# is out; builds without it are "dev" and never offer updates.
 Set-Location $PSScriptRoot
 $addData = ""
+$bundled = @()
 $keyLine = if (Test-Path .env) { Select-String -Path .env -Pattern '^GROQ_API_KEY=.+' | Select-Object -First 1 }
 if ($keyLine) {
-    New-Item -ItemType Directory -Force build | Out-Null
-    Set-Content -Path build\bundled.env -Value $keyLine.Line -Encoding ascii
-    $addData = "--add-data build\bundled.env;."
+    $bundled += $keyLine.Line
 } else {
     Write-Warning "No GROQ_API_KEY in .env: building without a built-in key (users must enter their own)."
+}
+if ($env:SAYLO_VERSION) { $bundled += "SAYLO_VERSION=$env:SAYLO_VERSION" }
+if ($bundled) {
+    New-Item -ItemType Directory -Force build | Out-Null
+    Set-Content -Path build\bundled.env -Value $bundled -Encoding ascii
+    $addData = "--add-data build\bundled.env;."
 }
 # PyInstaller logs to stderr; cmd /c keeps PowerShell 5.1 from treating that as an error.
 cmd /c ".\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --name Saylo --icon assets\saylo.ico --collect-submodules pynput --collect-submodules pystray --add-data ui;ui --add-data prompts;prompts $addData app.py 2>&1"

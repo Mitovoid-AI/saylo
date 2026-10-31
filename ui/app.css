@@ -205,6 +205,20 @@ select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;background
 .btn2{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px;font-size:13.5px;font-weight:500}
 .btn2:hover{border-color:#cfc7bb}
 .btn2.danger{color:var(--err)}
+.nav.busy{opacity:.55;cursor:progress}
+
+/* update dialog */
+.modal{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:rgba(22,20,27,.32);animation:fade .2s}
+.modal .box{background:var(--card);border-radius:20px;box-shadow:0 24px 60px rgba(22,20,27,.22);padding:28px 28px 24px;width:min(440px,90vw);animation:rise .3s cubic-bezier(.2,.8,.2,1) both}
+.modal h2{font-family:var(--display);font-size:22px;letter-spacing:-.01em;margin-bottom:8px}
+.modal p{font-size:14.5px;line-height:1.5}
+.modal .fine{margin-top:10px}
+.modal .acts{display:flex;gap:10px;justify-content:flex-end;margin-top:22px}
+.modal .btn2,.modal .cta{height:42px;padding:0 18px;font-size:14px}
+.modal .cta{width:auto}
+.modal .bar{height:8px;border-radius:8px;background:var(--panel);overflow:hidden;margin-top:16px}
+.modal .bar i{display:block;height:100%;width:0;border-radius:8px;background:var(--accent);transition:width .2s}
+@keyframes fade{from{opacity:0}}
 
 @media (max-width:1050px){
   .grid{grid-template-columns:1fr}
