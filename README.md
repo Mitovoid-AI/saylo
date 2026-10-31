@@ -14,7 +14,6 @@ On Windows, Saylo also writes for where you are. In an IDE, a terminal, ChatGPT,
 | Platform | How you dictate | Download |
 |---|---|---|
 | Windows 10 / 11 | Hold **Ctrl + Win** in any app | [Saylo-Setup.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Saylo-Setup.exe) · [portable Saylo.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Saylo.exe) |
-| Chrome, Edge, Brave | Hold **Alt + Shift** in any text box on a website | [saylo-chrome.zip](https://github.com/Mitovoid-AI/saylo/releases/latest/download/saylo-chrome.zip) |
 | Android | Hold the mic key on the Saylo keyboard | [saylo-android.apk](https://github.com/Mitovoid-AI/saylo/releases/latest/download/saylo-android.apk) |
 
 All builds: [Releases](https://github.com/Mitovoid-AI/saylo/releases).
@@ -34,8 +33,6 @@ Groq's free tier is enough for normal personal use. Its limits are per Groq acco
 
 **Windows:** run `Saylo-Setup.exe`. If Windows shows "Windows protected your PC", click **More info → Run anyway** (the installer isn't code-signed yet). Saylo starts with Windows and waits in the tray; closing the window keeps it running. Uninstall from Settings → Apps.
 
-**Chrome:** unzip `saylo-chrome.zip` into a folder you'll keep, open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the folder. A setup page opens for your key and microphone. (A Chrome Web Store listing is planned.)
-
 **Android:** install `saylo-android.apk` (allow "install unknown apps" when asked), open Saylo, and follow its three steps: add your key, allow the microphone, turn on the Saylo keyboard. In any app, switch to the Saylo keyboard, hold the mic and speak.
 
 ## Privacy
@@ -48,11 +45,10 @@ Saylo only records while you hold the shortcut or mic key. The audio goes straig
 |---|---|
 | `app.py`, `ui/`, `pill.py` | Windows app: pywebview window (onboarding, home, history, dictionary, settings), tray, corner popup, and the listening pill (a native see-through window drawn with Pillow) |
 | `asr.py`, `cleaner.py`, `pipeline.py` | Speech → raw text (Groq Whisper) → clean text (LLM) → paste |
-| `prompts/`, `context.py` | The cleanup prompts: `base.txt` (copied in `extension/groq.js` and `android/.../Groq.kt`: change all three together), the AI-prompt and WhatsApp modes, Hinglish, translate-to-English and the tones; `context.py` picks the mode from the app or site in front and reads "Hey Saylo, …" commands |
+| `prompts/`, `context.py` | The cleanup prompts: `base.txt` (copied in `android/.../Groq.kt`: change both together), the AI-prompt and WhatsApp modes, Hinglish, translate-to-English and the tones; `context.py` picks the mode from the app or site in front and reads "Hey Saylo, …" commands |
 | `recorder.py`, `hotkey.py`, `inserter.py`, `store.py`, `tray.py` | Microphone (plus silence check and MP3 for history), hold-to-talk hotkey, clipboard paste, local settings, history and dictionary, tray icon |
 | `build.ps1`, `installer.iss` | Builds `dist/Saylo.exe` (PyInstaller) and `dist/Saylo-Setup.exe` (Inno Setup) |
 | `benchmark.py`, `main.py` | Cleanup model benchmark and a console runner |
-| `extension/` | Chrome extension (Manifest V3) |
 | `android/` | Android keyboard app (Kotlin) |
 | `site/` | The website on GitHub Pages |
 | `.github/workflows/release.yml` | Builds everything and publishes a release on every push to `main` |
@@ -71,15 +67,13 @@ copy .env.example .env      # add your GROQ_API_KEY
 
 Local builds pack the `GROQ_API_KEY` from `.env` into the exe as a built-in key, so share those only with people you trust. Release builds made by GitHub Actions contain no key.
 
-**Chrome extension:** load the `extension/` folder with **Load unpacked**.
-
 **Android app** (JDK 17, Android SDK 36): `cd android` then `./gradlew assembleRelease`. Without signing secrets the APK is signed with the debug key.
 
 ## Releases
 
 Every push to `main` runs `.github/workflows/release.yml`, which:
 
-1. builds the Windows installer and exe, the Chrome zip and the Android APK,
+1. builds the Windows installer and exe and the Android APK,
 2. publishes them as a GitHub Release named `v0.1.<run number>`,
 3. deploys `site/` to GitHub Pages.
 

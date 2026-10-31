@@ -13,8 +13,8 @@ import config
 
 log = logging.getLogger(__name__)
 
-# The prompts live in prompts/ (packed into the exe). base.txt is the cleanup used everywhere; the Chrome and
-# Android apps carry copies of it, so change all three together. A mode or a tone adds its own file after it.
+# The prompts live in prompts/ (packed into the exe). base.txt is the cleanup used everywhere; the Android app
+# carries a copy of it, so change both together. A mode or a tone adds its own file after it.
 PROMPTS = Path(getattr(sys, "_MEIPASS", Path(__file__).parent)) / "prompts"
 
 
