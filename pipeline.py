@@ -6,6 +6,7 @@ from dataclasses import dataclass
 import asr
 import cleaner
 import config
+import context
 import inserter
 import recorder
 
@@ -22,6 +23,8 @@ class Result:
     total_ms: float = 0
     skipped: str = ""
     cleaned_by: str = ""  # model name, or "raw" if cleanup failed and the transcript was pasted as heard
+    mode: str = "default"  # the cleanup style used (context.py): ai, whatsapp or default
+    translate: bool = False  # the speaker said "Hey Saylo, translate to English"
 
 
 def skip_reason(wav: bytes, res: Result) -> str:
@@ -32,16 +35,24 @@ def skip_reason(wav: bytes, res: Result) -> str:
     return "no speech heard" if res.speech_ms < config.MIN_SPEECH_MS else ""
 
 
-def transcribe(audio: bytes, filename: str, res: Result, tone: str = "Balanced", words: list[str] = ()):
-    """Fills res.raw and res.text, or res.skipped when Whisper heard no speech. tone and words (the user's
-    dictionary) shape the transcript and the cleanup. Raises httpx errors when the network or Groq fails."""
-    prompt = asr.hint(words)
+def transcribe(audio: bytes, filename: str, res: Result, tone: str = "Balanced", words: list[str] = (),
+               mode: str = "default"):
+    """Fills res.raw and res.text, or res.skipped when Whisper heard no speech. tone, words (the user's
+    dictionary) and mode (where it's going) shape the transcript and the cleanup; spoken commands ("Hey Saylo,
+    <x> mode", "translate to English") override mode or translate. Raises httpx errors when the network or
+    Groq fails."""
+    prompt = asr.hint(list(dict.fromkeys(["Saylo", *words])))  # "Saylo" helps Whisper hear the mode command
     res.raw, t = asr.transcribe(audio, prompt, filename)
     res.asr_ms = t * 1000
     if asr.is_hallucination(res.raw, prompt):
         res.skipped = "no speech heard"
         return
-    res.text, t, res.cleaned_by = cleaner.clean_with_fallback(res.raw, tone, words)
+    spoken, res.translate, text = context.parse_command(res.raw)
+    res.mode = spoken or mode
+    if not text:
+        res.skipped = "only a command"
+        return
+    res.text, t, res.cleaned_by = cleaner.clean_with_fallback(text, tone, words, res.mode, res.translate)
     res.clean_ms = t * 1000
     if not res.text:
         res.skipped = "cleanup returned nothing"

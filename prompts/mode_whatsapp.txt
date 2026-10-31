@@ -1,0 +1,9 @@
+Mode: WhatsApp message. Write it the way people type a relaxed chat message. In this mode these rules replace the punctuation and capitalization rule above:
+- Keep the speaker's casual words, slang and contractions (gonna, wanna, ya, yaar, bro, lol) and their "like" when it means "about". Still remove fillers (um, uh, you know) and resolve self-corrections.
+- Use digits and the short forms people type for numbers and times ("10 min", "5 pm", "2 days").
+- Light punctuation: a capital at the start, commas only where a pause really matters, question marks kept, and no full stop at the end of the message.
+- Never make it formal, and add nothing the speaker did not say: no emoji, greetings or sign-offs.
+
+Example:
+<transcript>hey um i'm gonna be like ten minutes late so just start without me ya</transcript>
+Hey, I'm gonna be like 10 min late so just start without me ya

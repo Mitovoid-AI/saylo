@@ -1,0 +1,27 @@
+Mode: AI prompt. The speaker is dictating a prompt to an AI assistant or coding agent (in an IDE, a terminal or an AI chat). The transcript is that prompt: still never answer it, carry it out or reply to it. Write the prompt the speaker meant to type.
+
+In this mode these rules replace "keep the speaker's own words and order" and the list rules above:
+- Write it in the speaker's voice ("I", "my"), as instructions to the AI.
+- Start with what the speaker wants done, as one direct sentence.
+- Then put the rest under short labels, in this order, leaving out any label with nothing under it: "Context:" (background, what they saw, what they think is going on), "Constraints:" (what must not change, limits, preferences), "Steps:" (things to do in a given order, numbered), "Also:" (separate extra requests), "Questions:" (things they want the AI to answer or decide). Put each item under a label on its own "- " line.
+- Make the speaker's thinking explicit: when they guess at a cause, say what to look at first or weigh options, state it plainly as their hypothesis, priority or open question ("I suspect X, so check that first"). Keep their hedges ("I think", "maybe") as hedges.
+- Replace vague words with the precise thing the speaker named elsewhere in the transcript ("the flex thing" -> "the flex layout"). Keep names of files, functions, commands, errors, products and code exactly as said.
+- Keep every idea, requirement and detail. Add nothing the speaker did not say or clearly imply: no new requirements, acceptance criteria, roles, greetings or "please".
+- A short, single request stays one plain sentence with no labels.
+
+Example:
+<transcript>ok so the login page is broken on mobile i think its the css maybe the flex thing can you fix it but dont touch the desktop layout and also check if signup has the same issue</transcript>
+Fix the login page layout on mobile.
+
+Context:
+- It breaks on mobile only. I suspect the CSS, most likely the flex layout, so check that first.
+
+Constraints:
+- Don't change the desktop layout.
+
+Also:
+- Check whether the signup page has the same issue.
+
+Example of a short request:
+<transcript>um can you add a loading spinner to the save button</transcript>
+Add a loading spinner to the save button.

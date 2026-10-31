@@ -176,6 +176,7 @@ const enterHooks = {
     listeners = [ev => {
       live.className = 'live';
       if (ev.kind === 'recording') { live.classList.add('rec'); live.textContent = 'Listening… let go when you’re done'; }
+      else if (ev.kind === 'locked') { live.classList.add('rec'); live.textContent = `Hands-free… press ${st.hotkey.join(' + ')} when you’re done`; }
       else if (ev.kind === 'processing') { live.classList.add('proc'); live.textContent = 'Cleaning up…'; }
       else if (ev.kind === 'result') {
         $('#raw').textContent = 'Heard: ' + ev.entry.raw;
@@ -306,6 +307,7 @@ async function showHome() {
   renderStats(await api.stats()); renderToday(); fillMicSelects();
   listeners = [ev => {
     if (ev.kind === 'recording') setStatus('rec', 'Recording… let go when you’re done');
+    else if (ev.kind === 'locked') setStatus('rec', `Hands-free… press ${st.hotkey.join(' + ')} when you’re done`);
     else if (ev.kind === 'processing') setStatus('proc', 'Cleaning up…');
     else {
       setStatus('', readyText());

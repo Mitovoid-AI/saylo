@@ -49,10 +49,11 @@ def transcribe(audio: bytes, prompt: str = "", filename: str = "audio.wav") -> t
     t0 = time.perf_counter()
     data = {
         "model": config.ASR_MODEL,
-        "language": config.LANGUAGE,
         "response_format": "json",
         "temperature": "0",
     }
+    if config.LANGUAGE:
+        data["language"] = config.LANGUAGE
     if prompt:
         data["prompt"] = prompt
     r = _client.post(

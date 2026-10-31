@@ -24,7 +24,9 @@ HOTKEY = os.getenv("HOTKEY", "ctrl+cmd")
 
 ASR_URL = "https://api.groq.com/openai/v1/audio/transcriptions"
 ASR_MODEL = os.getenv("ASR_MODEL", "whisper-large-v3-turbo")
-LANGUAGE = os.getenv("LANGUAGE", "en")
+# "" lets Whisper detect the language. Forcing "en" turned a 36 s Hindi dictation into 4 English words, while
+# auto gave the same English as "en" on English dictations.
+LANGUAGE = os.getenv("LANGUAGE", "")
 
 # Cleanup LLM: "groq" (fast, default) or "openrouter".
 CLEANUP_PROVIDER = os.getenv("CLEANUP_PROVIDER", "groq")

@@ -74,15 +74,15 @@ def set_dictionary(words: list[str]) -> list[str]:
     return out
 
 
-def add_pending(mp3: bytes, audio_s: float) -> str:
+def add_pending(mp3: bytes, audio_s: float, mode: str = "default") -> str:
     """Saves a clip before it is sent, so a dropped network or a crash can't lose it; returns its name.
-    It stays in PENDING until finish_pending or drop_pending."""
+    It stays in PENDING until finish_pending or drop_pending. mode is the cleanup style for where it goes."""
     PENDING.mkdir(parents=True, exist_ok=True)
     now = datetime.now()
     # Microseconds in the name: two dictations can land in the same second, and names sort oldest first.
     name = now.strftime("%Y-%m-%d_%H-%M-%S_%f") + ".mp3"
     (PENDING / name).write_bytes(mp3)
-    meta = {"t": now.isoformat(timespec="seconds"), "audio_s": round(audio_s, 2), "wall": time.time()}
+    meta = {"t": now.isoformat(timespec="seconds"), "audio_s": round(audio_s, 2), "wall": time.time(), "mode": mode}
     (PENDING / name).with_suffix(".json").write_text(json.dumps(meta), encoding="utf-8")
     return name
 
@@ -95,17 +95,19 @@ def pending() -> list[dict]:
         wall = meta.get("wall") or p.stat().st_mtime
         out.append({"t": meta.get("t") or datetime.fromtimestamp(wall).isoformat(timespec="seconds"),
                     "text": "", "raw": "", "words": 0, "audio_s": meta.get("audio_s", 0), "total_ms": 0,
-                    "audio": p.name, "pending": True, "wall": wall})
+                    "audio": p.name, "pending": True, "wall": wall, "mode": meta.get("mode", "default")})
     return out
 
 
-def finish_pending(name: str, text: str, raw: str, total_ms: float, failed: bool = False) -> dict:
+def finish_pending(name: str, text: str, raw: str, total_ms: float, failed: bool = False, mode: str = "") -> dict:
     """A sent clip becomes a history entry and its recording moves to AUDIO (deleted if history is off).
-    failed marks a recording Groq couldn't transcribe, kept so it can be tried again from History."""
+    failed marks a recording Groq couldn't transcribe, kept so it can be tried again from History. mode is
+    the style used (a spoken command may have changed it); it defaults to the one saved with the clip."""
     clip = PENDING / name
     meta = _read(clip.with_suffix(".json"), {})
     entry = {"t": meta.get("t") or datetime.now().isoformat(timespec="seconds"), "text": text, "raw": raw,
-             "words": len(text.split()), "audio_s": meta.get("audio_s", 0), "total_ms": round(total_ms)}
+             "words": len(text.split()), "audio_s": meta.get("audio_s", 0), "total_ms": round(total_ms),
+             "mode": mode or meta.get("mode", "default")}
     if failed:
         entry["failed"] = True
     if profile()["keep_history"]:

@@ -68,13 +68,14 @@ gdi32.CreateDIBSection.restype = w.HBITMAP
 
 # Click-through, see-through, no taskbar button, always on top, never activated.
 EX_STYLE = 0x80000 | 0x20 | 0x80 | 0x8 | 0x8000000  # LAYERED | TRANSPARENT | TOOLWINDOW | TOPMOST | NOACTIVATE
-INK, CREAM, MINT, AMBER = (22, 20, 27), (251, 249, 246), (127, 224, 194), (244, 162, 89)
+INK, CREAM, MINT, AMBER, MUTED = (22, 20, 27), (251, 249, 246), (127, 224, 194), (244, 162, 89), (150, 146, 156)
 SHAPE = [.35, .5, .7, .85, .95, 1, .95, .85, .7, .5, .35]  # bar heights, tallest in the middle
 SS = 2  # draw at 2x and scale down, for smooth edges
 
 
 class Pill:
-    WIDTH, HEIGHT, MARGIN = 300, 72, 6  # logical px; the pill is centred in it, 10 px above the bottom
+    # Logical px. The pill sits centred, 10 px above the bottom; the command hints go in the space above it.
+    WIDTH, HEIGHT, MARGIN, STRIP = 300, 190, 6, 72
     MESSAGE_SECONDS = 2
     FPS = 30
 
@@ -83,12 +84,18 @@ class Pill:
         self._level = level
         self._states: queue.Queue = queue.Queue()
         self._shadows: dict[int, Image.Image] = {}
+        self._hints: tuple[list[str], float, float] = ([], 0.0, 0.0)  # lines, shown at, hidden at
+        self._card: tuple[list[str], Image.Image | None] = ([], None)  # the hint card last drawn, and its lines
         threading.Thread(target=self._run, daemon=True, name="pill").start()
 
     def show(self, state: str, text: str = "", seconds: float = MESSAGE_SECONDS):
-        """state is listening, working, retrying (text, stays up), message (text, hides after seconds) or
-        hidden. Never blocks the caller."""
+        """state is listening, locked (hands-free), working, retrying (text, stays up), message (text, hides
+        after seconds) or hidden. Never blocks the caller."""
         self._states.put((state, text, seconds))
+
+    def hints(self, lines: list[str], seconds: float):
+        """Shows spoken commands above the pill, while it is listening, for seconds."""
+        self._states.put(("hints", lines, seconds))
 
     def close(self):
         self._states.put(("quit", "", 0))
@@ -118,10 +125,12 @@ class Pill:
         self._bits = ctypes.c_void_p()
         gdi32.SelectObject(self._dc, gdi32.CreateDIBSection(self._screen, ctypes.byref(bmi), 0, ctypes.byref(self._bits), None, 0))
         self._font = self._load_font(13 * self._scale * SS)
+        self._hint_font = self._load_font(12.5 * self._scale * SS, ("segoeui.ttf",))
+        self._hint_title = self._load_font(11 * self._scale * SS)
 
     @staticmethod
-    def _load_font(size):
-        for name in ("seguisb.ttf", "segoeui.ttf"):
+    def _load_font(size, names=("seguisb.ttf", "segoeui.ttf")):
+        for name in names:
             try:
                 return ImageFont.truetype(name, round(size))
             except OSError:
@@ -145,13 +154,17 @@ class Pill:
         while True:
             self._pump()  # a hidden window must still answer system broadcasts
             try:
-                state, text, seconds = self._states.get(timeout=1 / self.FPS if shown else 0.1)
-                if state == "quit":
+                kind, text, seconds = self._states.get(timeout=1 / self.FPS if shown else 0.1)
+                if kind == "quit":
                     user32.DestroyWindow(self._hwnd)
                     return
-                if state != "hidden":
-                    content = (state, text)
-                hide_at = time.perf_counter() + seconds if state == "message" else None
+                if kind == "hints":
+                    self._hints = (text, time.perf_counter(), time.perf_counter() + seconds)
+                else:
+                    state = kind
+                    if state != "hidden":
+                        content = (state, text)
+                    hide_at = time.perf_counter() + seconds if state == "message" else None
             except queue.Empty:
                 pass
             now = time.perf_counter()
@@ -166,7 +179,7 @@ class Pill:
             if not shown:
                 continue
             appear = min(1.0, appear + dt / 0.15) if target else max(0.0, appear - dt / 0.15)
-            level = self._level() if content[0] == "listening" and state != "hidden" else 0
+            level = self._level() if content[0] in ("listening", "locked") and state != "hidden" else 0
             smooth += (min(1.0, math.sqrt(level / 100) * 1.25) - smooth) * 0.35
             try:
                 self._paint(*content, appear, smooth, now)
@@ -188,12 +201,15 @@ class Pill:
 
     def _paint(self, state, text, appear, smooth, now):
         k = self._scale * SS  # logical px -> canvas px
-        label = {"listening": "Listening", "working": "Cleaning up"}.get(state, text)
+        fixed = {"listening": "Listening", "locked": "Hands-free", "working": "Cleaning up"}.get(state)
+        label = (f"{fixed} · {text}" if text else fixed) if fixed else text  # e.g. "Listening · AI prompt"
         dot = state in ("message", "retrying")
         lead = 8 * k if dot else (len(SHAPE) * 3 + (len(SHAPE) - 1) * 3) * k  # dot or bars
         pill_w = 16 * k + lead + 10 * k + self._font.getlength(label) + 18 * k
         pill_h = 40 * k
-        cw, ch = self._w * SS, self._h * SS
+        # Only the pill's own strip is drawn at SS; the space above it is for the hint card, pasted at 1x.
+        strip = round(self.STRIP * self._scale)
+        cw, ch = self._w * SS, strip * SS
         left = (cw - pill_w) / 2
         top = ch - 10 * k - pill_h + (1 - appear) * 14 * k  # slides up as it appears
         canvas = Image.new("RGBA", (cw, ch), (0, 0, 0, 0))
@@ -209,19 +225,52 @@ class Pill:
                       fill=(*(round(i + (a - i) * f) for i, a in zip(INK, AMBER)), 255))
         else:
             for i, s in enumerate(SHAPE):
-                if state == "listening":  # a slow idle ripple, rising with the voice
+                if state in ("listening", "locked"):  # a slow idle ripple, rising with the voice
                     idle = 2 * (1 + math.sin(now * 3 + i * 0.7))
                     h = 4 + max(idle, 20 * smooth * s * (0.65 + 0.35 * math.sin(now * 9 + i * 1.3)))
                 else:  # working: a wave running through the bars
                     h = 4 + 12 * (0.5 - 0.5 * math.cos(2 * math.pi * ((now - i * 0.08) % 1.0)))
                 bx = x + i * 6 * k
                 d.rounded_rectangle([bx, cy - h * k / 2, bx + 3 * k, cy + h * k / 2], radius=1.5 * k,
-                                    fill=(*(CREAM if state == "listening" else MINT), 255))
+                                    fill=(*(MINT if state == "working" else CREAM), 255))
         d.text((x + lead + 10 * k, cy), label, font=self._font, fill=(*CREAM, 255), anchor="lm")
+        frame = Image.new("RGBA", (self._w, self._h), (0, 0, 0, 0))
+        frame.alpha_composite(canvas.reduce(SS), (0, self._h - strip))  # reduce(): a fast, exact 1/SS downscale
+        lines, shown_at, until = self._hints
+        if state == "listening" and lines and now < until:
+            card = self._hint_card(lines, k)
+            fade = min(1.0, (now - shown_at) / 0.15, (until - now) / 0.2)
+            if fade < 1:
+                card = card.copy()
+                card.putalpha(card.getchannel("A").point(lambda v: round(v * fade)))
+            pill_top = self._h - strip + top / SS
+            frame.alpha_composite(card, ((self._w - card.width) // 2, round(pill_top - 8 * self._scale - card.height)))
         # Premultiplied BGRA is what UpdateLayeredWindow wants.
-        r, g, b, a = canvas.convert("RGBa").resize((self._w, self._h), Image.LANCZOS).split()
+        r, g, b, a = frame.convert("RGBa").split()
         data = Image.merge("RGBa", (b, g, r, a)).tobytes()
         ctypes.memmove(self._bits, data, len(data))
         blend = BLENDFUNCTION(0, 0, round(255 * appear), 1)  # AC_SRC_OVER, fade, AC_SRC_ALPHA
         user32.UpdateLayeredWindow(self._hwnd, self._screen, ctypes.byref(self._pos), ctypes.byref(w.SIZE(self._w, self._h)),
                                    self._dc, ctypes.byref(w.POINT(0, 0)), 0, ctypes.byref(blend), 2)  # ULW_ALPHA
+
+    def _hint_card(self, lines, k):
+        """The spoken commands in a card for above the pill, "Hey Saylo," dimmed and the command bright. Drawn
+        once per set of lines; each frame only places (and fades) it."""
+        if self._card[0] != lines:
+            lead, title = "Hey Saylo, ", "YOU CAN SAY"
+            lead_w = self._hint_font.getlength(lead)
+            width = max(max(lead_w + self._hint_font.getlength(x.removeprefix(lead)) for x in lines),
+                        self._hint_title.getlength(title)) + 28 * k
+            line_h = 20 * k
+            card = Image.new("RGBA", (round(width), round((12 + 16 + 8) * k + line_h * len(lines))), (0, 0, 0, 0))
+            d = ImageDraw.Draw(card)
+            d.rounded_rectangle([0, 0, card.width - 1, card.height - 1], radius=12 * k, fill=(*INK, 255),
+                                outline=(255, 255, 255, 26), width=max(1, round(k)))
+            d.text((14 * k, 12 * k), title, font=self._hint_title, fill=(*MUTED, 255), anchor="lt")
+            y = (12 + 16) * k + line_h / 2
+            for x in lines:
+                d.text((14 * k, y), lead, font=self._hint_font, fill=(*MUTED, 255), anchor="lm")
+                d.text((14 * k + lead_w, y), x.removeprefix(lead), font=self._hint_font, fill=(*CREAM, 255), anchor="lm")
+                y += line_h
+            self._card = (lines, card.reduce(SS))
+        return self._card[1]

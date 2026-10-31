@@ -13,7 +13,7 @@ if ($keyLine) {
     Write-Warning "No GROQ_API_KEY in .env: building without a built-in key (users must enter their own)."
 }
 # PyInstaller logs to stderr; cmd /c keeps PowerShell 5.1 from treating that as an error.
-cmd /c ".\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --name Saylo --icon assets\saylo.ico --collect-submodules pynput --collect-submodules pystray --add-data ui;ui $addData app.py 2>&1"
+cmd /c ".\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --name Saylo --icon assets\saylo.ico --collect-submodules pynput --collect-submodules pystray --add-data ui;ui --add-data prompts;prompts $addData app.py 2>&1"
 $code = $LASTEXITCODE
 Remove-Item -Recurse -Force build, Saylo.spec -ErrorAction SilentlyContinue
 if ($code -ne 0) { throw "PyInstaller failed ($code)" }

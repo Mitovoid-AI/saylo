@@ -13,6 +13,7 @@ import subprocess
 import sys
 import threading
 import time
+from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
 
 import httpx
@@ -20,9 +21,8 @@ import pyperclip
 import sounddevice as sd
 import webview
 
-import asr
-import cleaner
 import config
+import context
 import pipeline
 import store
 import tray
@@ -45,6 +45,10 @@ HOTKEY_LABELS = {"ctrl": "Ctrl", "cmd": "Win", "alt": "Alt", "shift": "Shift"}
 
 RETRY_WAITS = (2, 3, 5, 10, 20, 30, 60)  # seconds between tries while sending a saved clip fails
 RECONNECT_SECONDS = 10  # the pill says "Reconnecting…" this long, then "Saved…" and hides
+HINT_SECONDS = 2  # how long the spoken commands show above the pill after the shortcut is pressed
+# Hands-free: tap the shortcut twice quickly and listening stays on after letting go; the next press ends it.
+TAP_SECONDS = 0.35  # a press shorter than this may be the first of the two taps
+DOUBLE_TAP_GAP = 0.4  # how long after that first tap a second press still counts
 
 
 def _is_rate_limit(e: Exception) -> bool:
@@ -137,6 +141,14 @@ class Api:
         self._peak = 0
         self._pill = Pill(level=lambda: self._recorder.level)
         self._targets: dict[str, int] = {}  # saved clip -> the window it was spoken into (this run only)
+        # Works out the mode (context.py) while the user speaks, so it adds no wait after they let go.
+        self._detector = ThreadPoolExecutor(1, thread_name_prefix="context")
+        self._mode: Future | None = None
+        self._locked = False  # hands-free: listening until the next press
+        self._skip_up = False  # the release after the locking or the stopping press isn't "let go"
+        self._pressed_at = 0.0
+        self._tap: threading.Timer | None = None  # set while waiting to see if a short tap gets a second one
+        self._hot_lock = threading.Lock()  # the hotkey and the tap timer run on different threads
         self._hk = HoldHotkey(config.HOTKEY, self._hot_down, self._hot_up)
         self._hk.start()
         threading.Thread(target=self._worker, daemon=True).start()
@@ -151,6 +163,18 @@ class Api:
     def _hot_down(self):
         if not self._dictation_on:
             return
+        with self._hot_lock:
+            if self._locked:  # hands-free: this press ends it
+                self._locked, self._skip_up = False, True
+                self._finish()
+                return
+            if self._tap and self._recording:  # a second tap right after a short one: hands-free
+                self._tap.cancel()
+                self._tap, self._locked, self._skip_up = None, True, True
+                self._pill.show("locked", context.LABELS[self._mode.result()] if self._mode and self._mode.done() else "")
+                self._emit("locked")
+                return
+        self._pressed_at = time.perf_counter()
         self._pill.show("listening")
         try:
             self._recorder.start(device=resolve_device(store.settings().get("mic")))
@@ -160,12 +184,46 @@ class Api:
             log.exception("mic start failed")
             self._pill.show("message", "Microphone not available")
             self._emit("error", message=f"Microphone error: {e}")
+            return
+        self._mode = self._detector.submit(context.detect, ctypes.windll.user32.GetForegroundWindow())
+        self._mode.add_done_callback(self._show_mode)
+
+    def _show_mode(self, mode: Future):
+        """Adds the detected mode to the pill ("Listening · AI prompt") and, for HINT_SECONDS, the spoken
+        commands that can change it, while the user is still speaking."""
+        if self._recording and mode is self._mode:
+            if self._locked:
+                self._pill.show("locked", context.LABELS[mode.result()])
+            else:
+                self._pill.show("listening", context.LABELS[mode.result()])
+                self._pill.hints(context.hints(mode.result()), HINT_SECONDS)
 
     def _hot_up(self):
+        with self._hot_lock:
+            if self._skip_up:
+                self._skip_up = False
+                return
+            if not self._recording or self._locked:
+                return
+            if time.perf_counter() - self._pressed_at < TAP_SECONDS:  # maybe the first of a double tap
+                self._tap = threading.Timer(DOUBLE_TAP_GAP, self._tap_over)
+                self._tap.start()
+                return
+            self._finish()
+
+    def _tap_over(self):
+        """No second tap came, so the short press was an ordinary (very short) dictation."""
+        with self._hot_lock:
+            if self._tap and not self._locked:
+                self._tap = None
+                self._finish()
+
+    def _finish(self):
+        """Stops listening and queues the clip, to be pasted where the user is now. Call with _hot_lock held."""
         if self._recording:
             self._recording = False
             wav, secs = self._recorder.stop()
-            self._clips.put((wav, secs, ctypes.windll.user32.GetForegroundWindow()))
+            self._clips.put((wav, secs, ctypes.windll.user32.GetForegroundWindow(), self._mode))
             self._pill.show("working")
             self._emit("processing")
 
@@ -206,8 +264,9 @@ class Api:
                            "you update the key in Settings." if _is_auth(error) else
                            "No connection. Your dictation is saved and will be sent automatically.")
 
-    def _save(self, wav: bytes, secs: float, hwnd: int) -> bool:
-        """Checks a new clip and saves it to be sent; False when there was no speech to send."""
+    def _save(self, wav: bytes, secs: float, hwnd: int, mode: Future | None) -> bool:
+        """Checks a new clip and saves it to be sent, with the mode detected for its app; False when there was
+        no speech to send."""
         res = pipeline.Result(secs)
         reason = pipeline.skip_reason(wav, res)
         if reason:
@@ -215,7 +274,11 @@ class Api:
             self._pill.show("message", "Didn’t catch that")
             self._emit("skipped", reason=reason)
             return False
-        self._targets[store.add_pending(to_mp3(wav), secs)] = hwnd
+        try:
+            detected = mode.result(timeout=2) if mode else "default"
+        except Exception:  # still looking after 2 s: the standard cleanup is the safe choice
+            detected = "default"
+        self._targets[store.add_pending(to_mp3(wav), secs, detected)] = hwnd
         return True
 
     def _send_pending(self) -> Exception | None:
@@ -226,7 +289,7 @@ class Api:
             name, res = job["audio"], pipeline.Result(job["audio_s"])
             try:
                 pipeline.transcribe(store.audio_path(name).read_bytes(), "audio.mp3", res,
-                                    store.profile()["tone"], store.dictionary())
+                                    store.profile()["tone"], store.dictionary(), job["mode"])
             except Exception as e:
                 if _retryable(e):
                     return e
@@ -239,8 +302,13 @@ class Api:
             if res.skipped:
                 store.drop_pending(name)
                 log.info("clip=%.2fs skipped=%s raw=%r", res.seconds, res.skipped, res.raw)
-                self._pill.show("message", "Didn’t catch that")
-                self._emit("skipped", reason=res.skipped)
+                if res.skipped == "only a command":
+                    said = ("Translate to English" if res.translate and res.mode == job["mode"] else
+                            f"{context.LABELS[res.mode] or 'Email'} mode" + (" + English" if res.translate else ""))
+                    self._pill.show("message", f"{said}: say your text after it", 3)
+                else:
+                    self._pill.show("message", "Didn’t catch that")
+                    self._emit("skipped", reason=res.skipped)
                 continue
             pasted = bool(hwnd) and ctypes.windll.user32.GetForegroundWindow() == hwnd
             if pasted:
@@ -250,10 +318,11 @@ class Api:
                 pyperclip.copy("\n\n".join(ready))
             res.total_ms = (time.time() - job["wall"]) * 1000
             delayed = res.total_ms > RECONNECT_SECONDS * 1000
-            entry = store.finish_pending(name, res.text, res.raw, res.total_ms)
-            log.info("clip=%.2fs asr=%.0fms clean=%.0fms paste=%.0fms total=%.0fms by=%s pasted=%s raw=%r text=%r",
-                     res.seconds, res.asr_ms, res.clean_ms, res.paste_ms, res.total_ms, res.cleaned_by, pasted,
-                     res.raw, res.text)
+            entry = store.finish_pending(name, res.text, res.raw, res.total_ms, mode=res.mode)
+            log.info("clip=%.2fs mode=%s asr=%.0fms clean=%.0fms paste=%.0fms total=%.0fms by=%s pasted=%s raw=%r text=%r",
+                     res.seconds, res.mode + ("+english" if res.translate else ""), res.asr_ms, res.clean_ms,
+                     res.paste_ms, res.total_ms, res.cleaned_by,
+                     pasted, res.raw, res.text)
             if not pasted:
                 self._pill.show("message", "Ready: press Ctrl+V" if len(ready) == 1
                                 else f"{len(ready)} dictations ready: press Ctrl+V", 4)
@@ -308,26 +377,26 @@ class Api:
         return "data:audio/mpeg;base64," + base64.b64encode(p.read_bytes()).decode() if p else ""
 
     def retry(self, name: str) -> dict:
-        """Transcribes a saved recording again with the current dictionary and tone, and updates its entry.
-        For a clip still waiting to be sent, it just asks the worker to try sending now."""
+        """Transcribes a saved recording again with the current dictionary and tone, in the mode it was first
+        written in, and updates its entry. For a clip still waiting to be sent, it asks the worker to try now."""
         p = store.audio_path(name)
         if not p:
             return {"ok": False, "error": "This recording was deleted. Audio is kept for 30 days."}
         if p.parent == store.PENDING:
             self._clips.put(None)
             return {"ok": True, "queued": True}
-        words = store.dictionary()
-        prompt = asr.hint(words)
+        entry = next((e for e in store.history(limit=10**9) if e.get("audio") == name), {})
+        res = pipeline.Result(entry.get("audio_s", 0))
         try:
-            raw, _ = asr.transcribe(p.read_bytes(), prompt, "audio.mp3")
-            if asr.is_hallucination(raw, prompt):
-                return {"ok": False, "error": "No speech found in this recording."}
-            text, _, by = cleaner.clean_with_fallback(raw, store.profile()["tone"], words)
+            pipeline.transcribe(p.read_bytes(), "audio.mp3", res, store.profile()["tone"], store.dictionary(),
+                                entry.get("mode", "default"))
         except httpx.HTTPError as e:
             log.warning("retry of %s failed: %s", name, e)
             return {"ok": False, "error": friendly_error(e)}
-        log.info("retry %s by=%s raw=%r text=%r", name, by, raw, text)
-        return {"ok": True, "entry": store.update_history(name, text, raw), "stats": store.stats()}
+        if res.skipped:
+            return {"ok": False, "error": "No speech found in this recording."}
+        log.info("retry %s mode=%s by=%s raw=%r text=%r", name, res.mode, res.cleaned_by, res.raw, res.text)
+        return {"ok": True, "entry": store.update_history(name, res.text, res.raw), "stats": store.stats()}
 
     def show_audio(self, name: str) -> bool:
         """Opens Explorer with the recording selected."""

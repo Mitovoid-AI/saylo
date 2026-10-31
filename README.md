@@ -7,7 +7,7 @@
 - Turns spoken lists ("first… second…", "my shopping list is…") into numbered lists
 - Never answers or rewrites what you said, it only cleans it up
 
-On Windows you also get a "Listening" pill above the taskbar while you hold the shortcut, a Dictionary of names and words Saylo should spell your way, a tone setting (Casual, Balanced or Formal), and History with play, transcribe-again and show-in-folder for each recording. Every clip is saved on your PC before it is sent, so if the internet drops, Saylo keeps it, retries on its own (even after a restart) and pastes it when you're back online: into the same window if you're still there, otherwise onto the clipboard.
+On Windows, Saylo also writes for where you are. In an IDE, a terminal, ChatGPT, Claude or another AI app it turns your dictation into a clear prompt (what you want, then context, constraints, steps and questions, with your reasoning spelled out). In WhatsApp, Telegram, Signal, Messenger and Discord it keeps a relaxed chat style. Everywhere else it does the standard cleanup. Hindi is written as Hinglish (Hindi in English letters). Say "Hey Saylo, WhatsApp mode" (or AI prompt / email mode) or "Hey Saylo, translate to English" to change one dictation; the commands you can say show above the pill for 2 seconds when you press the shortcut. To talk without holding the keys, tap Ctrl + Win twice quickly (hands-free), then press it once more to finish. You also get a "Listening" pill above the taskbar while you hold the shortcut, a Dictionary of names and words Saylo should spell your way, a tone setting (Casual, Balanced or Formal), and History with play, transcribe-again and show-in-folder for each recording. Every clip is saved on your PC before it is sent, so if the internet drops, Saylo keeps it, retries on its own (even after a restart) and pastes it when you're back online: into the same window if you're still there, otherwise onto the clipboard.
 
 **Website and downloads:** https://mitovoid-ai.github.io/saylo/
 
@@ -47,7 +47,8 @@ Saylo only records while you hold the shortcut or mic key. The audio goes straig
 | Path | What it is |
 |---|---|
 | `app.py`, `ui/`, `pill.py` | Windows app: pywebview window (onboarding, home, history, dictionary, settings), tray, corner popup, and the listening pill (a native see-through window drawn with Pillow) |
-| `asr.py`, `cleaner.py`, `pipeline.py` | Speech → raw text (Groq Whisper) → clean text (LLM) → paste. The cleanup prompt is copied in `extension/groq.js` and `android/.../Groq.kt`: change all three together |
+| `asr.py`, `cleaner.py`, `pipeline.py` | Speech → raw text (Groq Whisper) → clean text (LLM) → paste |
+| `prompts/`, `context.py` | The cleanup prompts: `base.txt` (copied in `extension/groq.js` and `android/.../Groq.kt`: change all three together), the AI-prompt and WhatsApp modes, Hinglish, translate-to-English and the tones; `context.py` picks the mode from the app or site in front and reads "Hey Saylo, …" commands |
 | `recorder.py`, `hotkey.py`, `inserter.py`, `store.py`, `tray.py` | Microphone (plus silence check and MP3 for history), hold-to-talk hotkey, clipboard paste, local settings, history and dictionary, tray icon |
 | `build.ps1`, `installer.iss` | Builds `dist/Saylo.exe` (PyInstaller) and `dist/Saylo-Setup.exe` (Inno Setup) |
 | `benchmark.py`, `main.py` | Cleanup model benchmark and a console runner |
