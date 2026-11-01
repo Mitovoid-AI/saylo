@@ -9,12 +9,14 @@
 
 On Windows, Saylo also writes for where you are. In an IDE, a terminal, ChatGPT, Claude or another AI app it turns your dictation into a clear prompt (what you want, then context, constraints, steps and questions, with your reasoning spelled out). In WhatsApp, Telegram, Signal, Messenger and Discord it keeps a relaxed chat style. Everywhere else it does the standard cleanup. Hindi is written as Hinglish (Hindi in English letters). Say "Hey Saylo, WhatsApp mode" (or AI prompt / email mode) or "Hey Saylo, translate to English" to change one dictation; the commands you can say show above the pill for 2 seconds when you press the shortcut. To talk without holding the keys, tap Ctrl + Win twice quickly (hands-free), then press it once more to finish. You also get a "Listening" pill above the taskbar while you hold the shortcut, a Dictionary of names and words Saylo should spell your way, a tone setting (Casual, Balanced or Formal), and History with play, transcribe-again and show-in-folder for each recording. Every clip is saved on your PC before it is sent, so if the internet drops, Saylo keeps it, retries on its own (even after a restart) and pastes it when you're back online: into the same window if you're still there, otherwise onto the clipboard. When a new version is out, Saylo says so when you open its window (at most three times a day), and **Check for updates** in the sidebar asks any time. **Update now** downloads it inside Saylo with a progress bar, then **Install now** closes Saylo, updates it and opens the new version (Settings shows which version you have).
 
+On Android, Saylo works in any app through the **Saylo bubble**: tap a text box and the bubble appears above your keyboard. Hold it and talk, then let go to send, or tap it once for hands-free and tap ✓ when you're done. It uses Android's Accessibility permission to show the bubble and type for you (never in password fields). It has the same writing styles by app, Hinglish, "Hey Saylo" commands, dictionary, tone, history and offline-safe sending as Windows, plus in-app updates; the Saylo keyboard stays as a backup. Sign-in is a placeholder for now ([#4](https://github.com/Mitovoid-AI/saylo/issues/4)) and Pro is listed as coming soon.
+
 **Website and downloads:** https://mitovoid-ai.github.io/saylo/
 
 | Platform | How you dictate | Download |
 |---|---|---|
 | Windows 10 / 11 | Hold **Ctrl + Win** in any app | [Saylo-Setup.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Saylo-Setup.exe) · [portable Saylo.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Saylo.exe) |
-| Android | Hold the mic key on the Saylo keyboard | [saylo-android.apk](https://github.com/Mitovoid-AI/saylo/releases/latest/download/saylo-android.apk) |
+| Android | Tap or hold the **Saylo bubble** in any app | [saylo-android.apk](https://github.com/Mitovoid-AI/saylo/releases/latest/download/saylo-android.apk) |
 
 All builds: [Releases](https://github.com/Mitovoid-AI/saylo/releases).
 
@@ -33,11 +35,11 @@ Groq's free tier is enough for normal personal use. Its limits are per Groq acco
 
 **Windows:** run `Saylo-Setup.exe`. If Windows shows "Windows protected your PC", click **More info → Run anyway** (the installer isn't code-signed yet). Saylo starts with Windows and waits in the tray; closing the window keeps it running. Uninstall from Settings → Apps.
 
-**Android:** install `saylo-android.apk` (allow "install unknown apps" when asked), open Saylo, and follow its three steps: add your key, allow the microphone, turn on the Saylo keyboard. In any app, switch to the Saylo keyboard, hold the mic and speak.
+**Android:** install `saylo-android.apk` (allow "install unknown apps" when asked), open Saylo and follow the setup: allow the microphone, turn on the Saylo bubble in Accessibility settings, agree to the privacy policy and add your key. On Android 13 and newer, Accessibility is greyed out ("Restricted setting") for apps installed outside the Play Store: open Saylo's App info, tap ⋮ → **Allow restricted settings**, then turn it on.
 
 ## Privacy
 
-Saylo only records while you hold the shortcut or mic key. The audio goes straight from your device to Groq to be transcribed and cleaned; Saylo has no server of its own. On Windows, your dictation history (the text, plus each recording for 30 days so you can replay it) is kept on your PC only, and you can turn it off or delete it.
+Saylo only records while you hold the shortcut, or use the bubble or mic key. The audio goes straight from your device to Groq to be transcribed and cleaned; Saylo has no server of its own. Your dictation history (the text, plus each recording for 30 days so you can replay it) is kept on your device only, and you can turn it off or delete it. On Android, the Accessibility permission is used only to see which app and text box you're in (and a browser's address bar, for the writing style) and to type your dictation; password fields are skipped.
 
 ## Repository layout
 
@@ -45,11 +47,11 @@ Saylo only records while you hold the shortcut or mic key. The audio goes straig
 |---|---|
 | `app.py`, `ui/`, `pill.py` | Windows app: pywebview window (onboarding, home, history, dictionary, settings), tray, corner popup, and the listening pill (a native see-through window drawn with Pillow) |
 | `asr.py`, `cleaner.py`, `pipeline.py` | Speech → raw text (Groq Whisper) → clean text (LLM) → paste |
-| `prompts/`, `context.py` | The cleanup prompts: `base.txt` (copied in `android/.../Groq.kt`: change both together), the AI-prompt and WhatsApp modes, Hinglish, translate-to-English and the tones; `context.py` picks the mode from the app or site in front and reads "Hey Saylo, …" commands |
+| `prompts/`, `context.py` | The cleanup prompts, shared by Windows and Android (the APK packs this folder in): `base.txt`, the AI-prompt and WhatsApp modes, Hinglish, translate-to-English and the tones; `context.py` picks the mode from the app or site in front and reads "Hey Saylo, …" commands (`android/.../Commands.kt` is its port: change both together) |
 | `recorder.py`, `hotkey.py`, `inserter.py`, `store.py`, `tray.py`, `updates.py` | Microphone (plus silence check and MP3 for history), hold-to-talk hotkey, clipboard paste, local settings, history and dictionary, tray icon, check for a newer release |
 | `build.ps1`, `installer.iss` | Builds `dist/Saylo.exe` (PyInstaller) and `dist/Saylo-Setup.exe` (Inno Setup) |
 | `benchmark.py`, `main.py` | Cleanup model benchmark and a console runner |
-| `android/` | Android keyboard app (Kotlin) |
+| `android/` | Android app (Kotlin, Jetpack Compose): onboarding and app screens, the Saylo bubble (an accessibility service), the Saylo keyboard, and the same engine as Windows (`Dictation.kt`, `Groq.kt`, `Commands.kt`, `Store.kt`, `Updater.kt`) |
 | `site/` | The website on GitHub Pages |
 | `.github/workflows/release.yml` | Builds everything and publishes a release on every push to `main` |
 

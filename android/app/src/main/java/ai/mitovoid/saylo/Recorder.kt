@@ -8,12 +8,15 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-/** 16 kHz mono 16-bit microphone capture into an in-memory WAV, like the Windows recorder. */
+/** 16 kHz mono 16-bit microphone capture into memory, like the Windows recorder. */
 class Recorder {
     private var record: AudioRecord? = null
     private var thread: Thread? = null
     private val pcm = ByteArrayOutputStream()
     @Volatile private var running = false
+    /** Loudness of the latest chunk, 0-100, for the listening bars. */
+    @Volatile var level = 0
+        private set
 
     /** Caller must hold RECORD_AUDIO. */
     @SuppressLint("MissingPermission")
@@ -30,34 +33,45 @@ class Recorder {
             val buf = ByteArray(minBuf)
             while (running) {
                 val n = rec.read(buf, 0, buf.size)
-                if (n > 0) synchronized(pcm) { pcm.write(buf, 0, n) }
+                if (n > 0) {
+                    synchronized(pcm) { pcm.write(buf, 0, n) }
+                    level = minOf(100, peak(buf, 0, n) / 120)
+                }
             }
         }.also { it.start() }
     }
 
-    /** Returns (wav bytes, seconds of audio). */
+    /** Returns (16-bit PCM, seconds of audio). */
     fun stop(): Pair<ByteArray, Double> {
         running = false
         thread?.join(500)
         record?.run { stop(); release() }
         record = null
+        level = 0
         val data = synchronized(pcm) { pcm.toByteArray() }
-        return wav(data) to data.size / (RATE * 2.0)
+        return data to data.size / (RATE * 2.0)
     }
 
     val isRecording get() = running
 
-    private fun wav(data: ByteArray): ByteArray {
-        val header = ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN).apply {
-            put("RIFF".toByteArray()); putInt(36 + data.size); put("WAVE".toByteArray())
-            put("fmt ".toByteArray()); putInt(16); putShort(1); putShort(1)
-            putInt(RATE); putInt(RATE * 2); putShort(2); putShort(16)
-            put("data".toByteArray()); putInt(data.size)
-        }
-        return header.array() + data
-    }
-
     companion object {
         const val RATE = 16_000
+
+        private fun peak(b: ByteArray, from: Int, to: Int): Int {
+            val s = ByteBuffer.wrap(b, from, to - from).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer()
+            var p = 0
+            while (s.hasRemaining()) p = maxOf(p, kotlin.math.abs(s.get().toInt()))
+            return p
+        }
+
+        /** Milliseconds of the clip clearly louder than its own background (30 ms frames), like recorder.py:
+         *  silence, steady noise and single clicks score near 0, and Whisper turns those into "Thank you." */
+        fun speechMs(pcm: ByteArray): Int {
+            val n = RATE * 30 / 1000 * 2
+            val peaks = (0..pcm.size - n step n).map { peak(pcm, it, it + n) }.filter { it > 0 }.sorted()
+            if (peaks.isEmpty()) return 0
+            val background = peaks[peaks.size / 5]
+            return 30 * peaks.count { it > maxOf(3 * background, 300) }
+        }
     }
 }
