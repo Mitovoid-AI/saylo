@@ -44,8 +44,11 @@ def worker(hk: HoldHotkey):
 
 
 def main():
-    config.require("GROQ_API_KEY", config.GROQ_API_KEY)
-    config.cleanup_key()
+    try:
+        config.require("GROQ_API_KEY", config.GROQ_API_KEY)
+        config.cleanup_key()
+    except config.MissingKey as e:
+        raise SystemExit(str(e))
     hk = HoldHotkey(config.HOTKEY, on_down, on_up)
     threading.Thread(target=worker, args=(hk,), daemon=True).start()
     hk.start()

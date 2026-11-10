@@ -67,7 +67,12 @@ def cleanup_key() -> str:
     return require("OPENROUTER_API_KEY", OPENROUTER_API_KEY)
 
 
+class MissingKey(Exception):
+    """No API key is set. A normal error, not SystemExit: raised in the app's worker thread, SystemExit ended
+    the thread without a word and every dictation after it hung on "working"."""
+
+
 def require(name: str, value: str) -> str:
     if not value:
-        raise SystemExit(f"{name} is not set. Copy .env.example to .env and fill it in.")
+        raise MissingKey(f"{name} is not set. Copy .env.example to .env and fill it in.")
     return value

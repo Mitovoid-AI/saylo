@@ -62,7 +62,10 @@ def _is_auth(e: Exception) -> bool:
 
 
 def _retryable(e: Exception) -> bool:
-    """Worth trying again later: no network, a timeout, Groq busy or down, or a rejected key (can be fixed)."""
+    """Worth trying again later: no network, a timeout, Groq busy or down, or a rejected or missing key (can
+    be fixed)."""
+    if isinstance(e, config.MissingKey):
+        return True
     if isinstance(e, httpx.HTTPStatusError):
         return _is_auth(e) or e.response.status_code in (408, 429) or e.response.status_code >= 500
     return isinstance(e, httpx.TransportError)
@@ -251,6 +254,14 @@ class Api:
             if error is None:
                 wait, fails, failing_since, told_saved = None, 0, None, False
                 continue
+            if isinstance(error, config.MissingKey):
+                # Nothing to retry until a key is saved (check_key wakes this loop) or a new clip comes in.
+                wait, fails, failing_since, told_saved = None, 0, None, False
+                log.warning("no Groq key; %d clip(s) saved until one is added", len(store.pending()))
+                self._pill.show("message", "Add your Groq key in Sayvra", 3)
+                self._emit("offline", message="Add your Groq key in Settings. Your dictation is saved and will be "
+                           "sent once the key is in.")
+                continue
             fails += 1
             failing_since = failing_since or time.time()
             wait = RETRY_WAITS[min(fails, len(RETRY_WAITS)) - 1]
@@ -394,6 +405,8 @@ class Api:
         try:
             pipeline.transcribe(p.read_bytes(), "audio.mp3", res, store.profile()["tone"], store.dictionary(),
                                 entry.get("mode", "default"))
+        except config.MissingKey:
+            return {"ok": False, "error": "Add your Groq key in Settings first."}
         except httpx.HTTPError as e:
             log.warning("retry of %s failed: %s", name, e)
             return {"ok": False, "error": friendly_error(e)}
@@ -580,6 +593,10 @@ def main():
     to_tray = "--tray" in sys.argv
     if tray.signal_running("ping" if to_tray else "show"):
         return  # Sayvra is already running; a normal launch brings its window up instead
+    # A key built into this exe is saved as the user's own, so an update to a build without one keeps working.
+    built_in = config.dotenv_values(config.BUNDLED_ENV).get("GROQ_API_KEY")
+    if built_in and not config.HAS_USER_KEY:
+        save_groq_key(built_in)
     api = Api()
     hidden = to_tray and api._dictation_on  # first run still needs the setup window
     window = webview.create_window("Sayvra", str(UI_DIR / "index.html"), js_api=api, hidden=hidden,
