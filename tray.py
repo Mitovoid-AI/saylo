@@ -1,6 +1,6 @@
-"""System-tray icon and single-instance guard, so Saylo keeps listening after its window is closed.
+"""System-tray icon and single-instance guard, so Sayvra keeps listening after its window is closed.
 
-Only one Saylo may run (two would paste every dictation twice). The first instance listens on a
+Only one Sayvra may run (two would paste every dictation twice). The first instance listens on a
 localhost port; a second launch sends it "show" (or "quit") and exits."""
 import logging
 import socket
@@ -14,7 +14,7 @@ INSTANCE_PORT = 47615
 
 
 def signal_running(command: str = "show") -> bool:
-    """True if another Saylo is running (and it received the command)."""
+    """True if another Sayvra is running (and it received the command)."""
     try:
         with socket.create_connection(("127.0.0.1", INSTANCE_PORT), timeout=0.5) as s:
             s.sendall(command.encode())
@@ -45,7 +45,7 @@ def serve_commands(handlers: dict) -> None:
 
 
 def icon_image(size: int = 64) -> Image.Image:
-    """The Saylo mark: dark rounded square with mint sound bars (layout in 64-unit coordinates)."""
+    """The Sayvra mark: dark rounded square with mint sound bars (layout in 64-unit coordinates)."""
     k = size / 64
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -60,9 +60,9 @@ def icon_image(size: int = 64) -> Image.Image:
 
 
 def start_tray(on_open, on_quit) -> pystray.Icon:
-    icon = pystray.Icon("Saylo", icon_image(),"Saylo: hold Ctrl + Win to dictate", menu=pystray.Menu(
-        pystray.MenuItem("Open Saylo", lambda: on_open(), default=True),
-        pystray.MenuItem("Quit Saylo", lambda: on_quit()),
+    icon = pystray.Icon("Sayvra", icon_image(),"Sayvra: hold Ctrl + Win to dictate", menu=pystray.Menu(
+        pystray.MenuItem("Open Sayvra", lambda: on_open(), default=True),
+        pystray.MenuItem("Quit Sayvra", lambda: on_quit()),
     ))
     icon.run_detached()
     return icon

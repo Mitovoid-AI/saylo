@@ -145,7 +145,7 @@ object Groq {
                 val text = clean(raw, key, model, tone, words, mode, translate)
                 if (text.isNotEmpty()) return text to model
             } catch (e: Exception) {
-                android.util.Log.w("Saylo", "cleanup with $model failed", e)
+                android.util.Log.w("Sayvra", "cleanup with $model failed", e)
             }
         }
         return raw to "raw"
@@ -172,8 +172,8 @@ object Groq {
     }
 
     fun friendly(e: Exception): String = when {
-        isRateLimit(e) -> "Groq's limit for your key is reached. Saved; Saylo sends it when the limit resets."
-        isAuth(e) -> "Groq rejected your key. Saved; open Saylo to update the key."
-        else -> "No connection. Saved; Saylo sends it when you're back online."
+        isRateLimit(e) -> "Groq's limit for your key is reached. Saved; Sayvra sends it when the limit resets."
+        isAuth(e) -> "Groq rejected your key. Saved; open Sayvra to update the key."
+        else -> "No connection. Saved; Sayvra sends it when you're back online."
     }
 }

@@ -1,6 +1,8 @@
-# Every push to main: build Saylo for Windows and the Android keyboard, publish a GitHub Release
-# (v0.1.<run number>) with the installer, the standalone exe and saylo-android.apk, then deploy the
+# Every push to main: build Sayvra for Windows and the Android keyboard, publish a GitHub Release
+# (v0.1.<run number>) with the installer, the standalone exe and sayvra-android.apk, then deploy the
 # website in site/ to GitHub Pages.
+# Sayvra was called Saylo: each release also carries the installer and APK under their old names
+# (Saylo-Setup.exe, saylo-android.apk), which Saylo's in-app updater looks for. Drop them once old copies have updated.
 # Public builds carry no API key: users add their own free Groq key during setup.
 name: Release
 
@@ -35,19 +37,19 @@ jobs:
         run: |
           if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
 
-      - name: Build Saylo.exe and Saylo-Setup.exe
+      - name: Build Sayvra.exe and Sayvra-Setup.exe
         run: |
           python -m venv .venv
           .venv\Scripts\python.exe -m pip install --disable-pip-version-check -r requirements.txt
           .\build.ps1
-          if (-not (Test-Path dist\Saylo-Setup.exe)) { throw "Saylo-Setup.exe was not built" }
+          if (-not (Test-Path dist\Sayvra-Setup.exe)) { throw "Sayvra-Setup.exe was not built" }
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows
           path: |
-            dist/Saylo-Setup.exe
-            dist/Saylo.exe
+            dist/Sayvra-Setup.exe
+            dist/Sayvra.exe
 
   android:
     runs-on: ubuntu-latest
@@ -61,7 +63,7 @@ jobs:
 
       # Signed with the release key when the ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD secrets
       # exist; otherwise with this run's debug key (then a new APK can't update an installed one).
-      - name: Build saylo-android.apk
+      - name: Build sayvra-android.apk
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           SAYLO_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -76,12 +78,12 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew --no-daemon assembleRelease
-          cp app/build/outputs/apk/release/app-release.apk ../saylo-android.apk
+          cp app/build/outputs/apk/release/app-release.apk ../sayvra-android.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: android
-          path: saylo-android.apk
+          path: sayvra-android.apk
 
   release:
     needs: [windows, android]
@@ -96,8 +98,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "v$SAYLO_VERSION" out/Saylo-Setup.exe out/Saylo.exe out/saylo-android.apk \
-            --repo "$GITHUB_REPOSITORY" --title "Saylo $SAYLO_VERSION" --target "$GITHUB_SHA" --generate-notes
+          cp out/Sayvra-Setup.exe out/Saylo-Setup.exe
+          cp out/sayvra-android.apk out/saylo-android.apk
+          gh release create "v$SAYLO_VERSION" out/Sayvra-Setup.exe out/Sayvra.exe out/sayvra-android.apk \
+            out/Saylo-Setup.exe out/saylo-android.apk \
+            --repo "$GITHUB_REPOSITORY" --title "Sayvra $SAYLO_VERSION" --target "$GITHUB_SHA" --generate-notes
 
   pages:
     needs: release

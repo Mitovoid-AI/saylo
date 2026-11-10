@@ -1,4 +1,4 @@
-"""Local data in %APPDATA%\\Saylo: settings.json (app state), profile.json (onboarding answers,
+"""Local data in %APPDATA%\\Sayvra: settings.json (app state), profile.json (onboarding answers,
 kept for future prompt personalisation and the backend), history.jsonl (one dictation per line),
 audio\\*.mp3 (each dictation's recording, named in its history entry, deleted after AUDIO_DAYS),
 pending\\*.mp3 + .json (clips saved but not sent yet, e.g. while offline; never pruned),

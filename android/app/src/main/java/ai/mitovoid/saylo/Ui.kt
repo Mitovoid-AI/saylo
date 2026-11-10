@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** Saylo's look on Android: the Windows app's palette (ui/app.css), serif headlines, and shared pieces. */
+/** Sayvra's look on Android: the Windows app's palette (ui/app.css), serif headlines, and shared pieces. */
 object C {
     val bg = Color(0xFFFBF9F6)
     val panel = Color(0xFFF2EDE5)
@@ -138,7 +138,7 @@ fun Badge(text: String, color: Color = C.warm, ink: Color = C.warmInk) =
     Text(text, Modifier.clip(RoundedCornerShape(99.dp)).background(color).padding(horizontal = 10.dp, vertical = 4.dp),
         color = ink, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
 
-/** The Saylo mark: four mint bars on a dark rounded square. */
+/** The Sayvra mark: four mint bars on a dark rounded square. */
 @Composable
 fun Logo(size: Dp = 56.dp, square: Boolean = true) =
     Canvas(Modifier.size(size)) {
@@ -157,7 +157,7 @@ fun Logo(size: Dp = 56.dp, square: Boolean = true) =
 fun Wordmark(color: Color = C.ink) = Row(verticalAlignment = Alignment.CenterVertically) {
     Logo(30.dp)
     Spacer(Modifier.width(10.dp))
-    Text("Saylo", color = color, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+    Text("Sayvra", color = color, fontSize = 24.sp, fontWeight = FontWeight.Bold)
 }
 
 /** A scrolling page with side padding, for settings-like screens. */

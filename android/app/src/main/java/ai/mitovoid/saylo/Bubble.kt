@@ -22,7 +22,7 @@ import android.widget.TextView
 import kotlin.math.abs
 import kotlin.math.sin
 
-/** The Saylo bubble, drawn over other apps by the accessibility service (no "display over other apps"
+/** The Sayvra bubble, drawn over other apps by the accessibility service (no "display over other apps"
  *  permission needed). It sits at the right edge above the keyboard. Hold it to talk and let go to send, or tap
  *  it for hands-free (✕ cancels, ✓ sends); drag it up or down to move it. A second, untouchable window above it
  *  shows the mode ("Listening · WhatsApp"), the commands you can say for 2 s, and messages. */
@@ -231,7 +231,7 @@ class Bubble(private val host: SayloAccessibility) {
                     c.drawArc(RectF(r - 11 * d, r - 11 * d, r + 11 * d, r + 11 * d), a, 250f, false, stroke)
                     postInvalidateOnAnimation()
                 }
-                else -> {  // the Saylo mark: four bars
+                else -> {  // the Sayvra mark: four bars
                     val heights = floatArrayOf(10f, 20f, 26f, 14f)
                     for (i in heights.indices) {
                         val x = r + (i - 1.5f) * 6 * d

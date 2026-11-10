@@ -15,7 +15,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 
-/** The Saylo keyboard, the backup to the bubble: hold the mic, speak, let go, and the cleaned text is typed
+/** The Sayvra keyboard, the backup to the bubble: hold the mic, speak, let go, and the cleaned text is typed
  *  into the field; or tap the mic for hands-free and tap again to send. It writes in the app's style (Commands)
  *  and keeps clips safe while offline (Dictation). Space, backspace, enter and a key to switch back to your
  *  usual keyboard sit underneath. */

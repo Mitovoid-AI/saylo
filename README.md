@@ -1,45 +1,47 @@
-# Saylo
+# Sayvra
 
-**Say it messy. Send it clean.** Hold a shortcut, talk the way you think, let go. Saylo turns your speech into tidy, punctuated text and types it where your cursor is.
+*Formerly Saylo. Same app, new name.*
+
+**Say it messy. Send it clean.** Hold a shortcut, talk the way you think, let go. Sayvra turns your speech into tidy, punctuated text and types it where your cursor is.
 
 - Drops filler words (um, uh, like, you know) and accidental repeats
 - Keeps only your final version when you correct yourself ("Tuesday, no wait, Wednesday" → "Wednesday")
 - Turns spoken lists ("first… second…", "my shopping list is…") into numbered lists
 - Never answers or rewrites what you said, it only cleans it up
 
-On Windows, Saylo also writes for where you are. In an IDE, a terminal, ChatGPT, Claude or another AI app it turns your dictation into a clear prompt (what you want, then context, constraints, steps and questions, with your reasoning spelled out). In WhatsApp, Telegram, Signal, Messenger and Discord it keeps a relaxed chat style. Everywhere else it does the standard cleanup. Hindi is written as Hinglish (Hindi in English letters). Say "Hey Saylo, WhatsApp mode" (or AI prompt / email mode) or "Hey Saylo, translate to English" to change one dictation; the commands you can say show above the pill for 2 seconds when you press the shortcut. To talk without holding the keys, tap Ctrl + Win twice quickly (hands-free), then press it once more to finish. You also get a "Listening" pill above the taskbar while you hold the shortcut, a Dictionary of names and words Saylo should spell your way, a tone setting (Casual, Balanced or Formal), and History with play, transcribe-again and show-in-folder for each recording. Every clip is saved on your PC before it is sent, so if the internet drops, Saylo keeps it, retries on its own (even after a restart) and pastes it when you're back online: into the same window if you're still there, otherwise onto the clipboard. When a new version is out, Saylo says so when you open its window (at most three times a day), and **Check for updates** in the sidebar asks any time. **Update now** downloads it inside Saylo with a progress bar, then **Install now** closes Saylo, updates it and opens the new version (Settings shows which version you have).
+On Windows, Sayvra also writes for where you are. In an IDE, a terminal, ChatGPT, Claude or another AI app it turns your dictation into a clear prompt (what you want, then context, constraints, steps and questions, with your reasoning spelled out). In WhatsApp, Telegram, Signal, Messenger and Discord it keeps a relaxed chat style. Everywhere else it does the standard cleanup. Hindi is written as Hinglish (Hindi in English letters). Say "Hey Sayvra, WhatsApp mode" (or AI prompt / email mode) or "Hey Sayvra, translate to English" to change one dictation; the commands you can say show above the pill for 2 seconds when you press the shortcut. To talk without holding the keys, tap Ctrl + Win twice quickly (hands-free), then press it once more to finish. You also get a "Listening" pill above the taskbar while you hold the shortcut, a Dictionary of names and words Sayvra should spell your way, a tone setting (Casual, Balanced or Formal), and History with play, transcribe-again and show-in-folder for each recording. Every clip is saved on your PC before it is sent, so if the internet drops, Sayvra keeps it, retries on its own (even after a restart) and pastes it when you're back online: into the same window if you're still there, otherwise onto the clipboard. When a new version is out, Sayvra says so when you open its window (at most three times a day), and **Check for updates** in the sidebar asks any time. **Update now** downloads it inside Sayvra with a progress bar, then **Install now** closes Sayvra, updates it and opens the new version (Settings shows which version you have).
 
-On Android, Saylo works in any app through the **Saylo bubble**: tap a text box and the bubble appears above your keyboard. Hold it and talk, then let go to send, or tap it once for hands-free and tap ✓ when you're done. It uses Android's Accessibility permission to show the bubble and type for you (never in password fields). It has the same writing styles by app, Hinglish, "Hey Saylo" commands, dictionary, tone, history and offline-safe sending as Windows, plus in-app updates; the Saylo keyboard stays as a backup. Sign-in is a placeholder for now ([#4](https://github.com/Mitovoid-AI/saylo/issues/4)) and Pro is listed as coming soon.
+On Android, Sayvra works in any app through the **Sayvra bubble**: tap a text box and the bubble appears above your keyboard. Hold it and talk, then let go to send, or tap it once for hands-free and tap ✓ when you're done. It uses Android's Accessibility permission to show the bubble and type for you (never in password fields). It has the same writing styles by app, Hinglish, "Hey Sayvra" commands, dictionary, tone, history and offline-safe sending as Windows, plus in-app updates; the Sayvra keyboard stays as a backup. Sign-in is a placeholder for now ([#4](https://github.com/Mitovoid-AI/saylo/issues/4)) and Pro is listed as coming soon.
 
 **Website and downloads:** https://mitovoid-ai.github.io/saylo/
 
 | Platform | How you dictate | Download |
 |---|---|---|
-| Windows 10 / 11 | Hold **Ctrl + Win** in any app | [Saylo-Setup.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Saylo-Setup.exe) · [portable Saylo.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Saylo.exe) |
-| Android | Tap or hold the **Saylo bubble** in any app | [saylo-android.apk](https://github.com/Mitovoid-AI/saylo/releases/latest/download/saylo-android.apk) |
+| Windows 10 / 11 | Hold **Ctrl + Win** in any app | [Sayvra-Setup.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Sayvra-Setup.exe) · [portable Sayvra.exe](https://github.com/Mitovoid-AI/saylo/releases/latest/download/Sayvra.exe) |
+| Android | Tap or hold the **Sayvra bubble** in any app | [sayvra-android.apk](https://github.com/Mitovoid-AI/saylo/releases/latest/download/sayvra-android.apk) |
 
 All builds: [Releases](https://github.com/Mitovoid-AI/saylo/releases).
 
 ## You need a free Groq key (for now)
 
-This version of Saylo uses [Groq](https://groq.com) for speech-to-text (Whisper) and cleanup, with your own API key:
+This version of Sayvra uses [Groq](https://groq.com) for speech-to-text (Whisper) and cleanup, with your own API key:
 
 1. Sign in at [console.groq.com/keys](https://console.groq.com/keys) and click **Create API Key**.
-2. Paste it into Saylo's setup screen. It is stored only on your device.
+2. Paste it into Sayvra's setup screen. It is stored only on your device.
 
-Groq's free tier is enough for normal personal use. Its limits are per Groq account; if you hit one, Saylo tells you to wait a minute.
+Groq's free tier is enough for normal personal use. Its limits are per Groq account; if you hit one, Sayvra tells you to wait a minute.
 
 > **Coming in the next update: a paid version that needs no API key.** Sign in, pay, and dictate. No Groq account needed.
 
 ## Install
 
-**Windows:** run `Saylo-Setup.exe`. If Windows shows "Windows protected your PC", click **More info → Run anyway** (the installer isn't code-signed yet). Saylo starts with Windows and waits in the tray; closing the window keeps it running. Uninstall from Settings → Apps.
+**Windows:** run `Sayvra-Setup.exe`. If Windows shows "Windows protected your PC", click **More info → Run anyway** (the installer isn't code-signed yet). Sayvra starts with Windows and waits in the tray; closing the window keeps it running. Uninstall from Settings → Apps.
 
-**Android:** install `saylo-android.apk` (allow "install unknown apps" when asked), open Saylo and follow the setup: allow the microphone, turn on the Saylo bubble in Accessibility settings, agree to the privacy policy and add your key. On Android 13 and newer, Accessibility is greyed out ("Restricted setting") for apps installed outside the Play Store: open Saylo's App info, tap ⋮ → **Allow restricted settings**, then turn it on.
+**Android:** install `sayvra-android.apk` (allow "install unknown apps" when asked), open Sayvra and follow the setup: allow the microphone, turn on the Sayvra bubble in Accessibility settings, agree to the privacy policy and add your key. On Android 13 and newer, Accessibility is greyed out ("Restricted setting") for apps installed outside the Play Store: open Sayvra's App info, tap ⋮ → **Allow restricted settings**, then turn it on.
 
 ## Privacy
 
-Saylo only records while you hold the shortcut, or use the bubble or mic key. The audio goes straight from your device to Groq to be transcribed and cleaned; Saylo has no server of its own. Your dictation history (the text, plus each recording for 30 days so you can replay it) is kept on your device only, and you can turn it off or delete it. On Android, the Accessibility permission is used only to see which app and text box you're in (and a browser's address bar, for the writing style) and to type your dictation; password fields are skipped.
+Sayvra only records while you hold the shortcut, or use the bubble or mic key. The audio goes straight from your device to Groq to be transcribed and cleaned; Sayvra has no server of its own. Your dictation history (the text, plus each recording for 30 days so you can replay it) is kept on your device only, and you can turn it off or delete it. On Android, the Accessibility permission is used only to see which app and text box you're in (and a browser's address bar, for the writing style) and to type your dictation; password fields are skipped.
 
 ## Repository layout
 
@@ -47,11 +49,11 @@ Saylo only records while you hold the shortcut, or use the bubble or mic key. Th
 |---|---|
 | `app.py`, `ui/`, `pill.py` | Windows app: pywebview window (onboarding, home, history, dictionary, settings), tray, corner popup, and the listening pill (a native see-through window drawn with Pillow) |
 | `asr.py`, `cleaner.py`, `pipeline.py` | Speech → raw text (Groq Whisper) → clean text (LLM) → paste |
-| `prompts/`, `context.py` | The cleanup prompts, shared by Windows and Android (the APK packs this folder in): `base.txt`, the AI-prompt and WhatsApp modes, Hinglish, translate-to-English and the tones; `context.py` picks the mode from the app or site in front and reads "Hey Saylo, …" commands (`android/.../Commands.kt` is its port: change both together) |
+| `prompts/`, `context.py` | The cleanup prompts, shared by Windows and Android (the APK packs this folder in): `base.txt`, the AI-prompt and WhatsApp modes, Hinglish, translate-to-English and the tones; `context.py` picks the mode from the app or site in front and reads "Hey Sayvra, …" commands (`android/.../Commands.kt` is its port: change both together) |
 | `recorder.py`, `hotkey.py`, `inserter.py`, `store.py`, `tray.py`, `updates.py` | Microphone (plus silence check and MP3 for history), hold-to-talk hotkey, clipboard paste, local settings, history and dictionary, tray icon, check for a newer release |
-| `build.ps1`, `installer.iss` | Builds `dist/Saylo.exe` (PyInstaller) and `dist/Saylo-Setup.exe` (Inno Setup) |
+| `build.ps1`, `installer.iss` | Builds `dist/Sayvra.exe` (PyInstaller) and `dist/Sayvra-Setup.exe` (Inno Setup) |
 | `benchmark.py`, `main.py` | Cleanup model benchmark and a console runner |
-| `android/` | Android app (Kotlin, Jetpack Compose): onboarding and app screens, the Saylo bubble (an accessibility service), the Saylo keyboard, and the same engine as Windows (`Dictation.kt`, `Groq.kt`, `Commands.kt`, `Store.kt`, `Updater.kt`) |
+| `android/` | Android app (Kotlin, Jetpack Compose): onboarding and app screens, the Sayvra bubble (an accessibility service), the Sayvra keyboard, and the same engine as Windows (`Dictation.kt`, `Groq.kt`, `Commands.kt`, `Store.kt`, `Updater.kt`) |
 | `site/` | The website on GitHub Pages |
 | `.github/workflows/release.yml` | Builds everything and publishes a release on every push to `main` |
 
@@ -64,7 +66,7 @@ python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
 copy .env.example .env      # add your GROQ_API_KEY
 .venv\Scripts\python app.py # run it
-.\build.ps1                 # build dist\Saylo.exe and, with Inno Setup 6 installed, dist\Saylo-Setup.exe
+.\build.ps1                 # build dist\Sayvra.exe and, with Inno Setup 6 installed, dist\Sayvra-Setup.exe
 ```
 
 Local builds pack the `GROQ_API_KEY` from `.env` into the exe as a built-in key, so share those only with people you trust. Release builds made by GitHub Actions contain no key.

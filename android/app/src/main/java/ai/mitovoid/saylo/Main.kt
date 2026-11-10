@@ -196,7 +196,7 @@ private fun Menu(onPick: (String) -> Unit) = Column(Modifier.fillMaxSize().paddi
             Text(Store.name.take(1).uppercase().ifEmpty { "S" }, color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(10.dp))
-        Text(Store.name.ifEmpty { "Saylo user" }, color = C.ink, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+        Text(Store.name.ifEmpty { "Sayvra user" }, color = C.ink, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
         Text("Free plan · your own Groq key", color = C.muted, fontSize = 13.sp)
     }
     Spacer(Modifier.height(12.dp))
@@ -207,7 +207,7 @@ private fun Menu(onPick: (String) -> Unit) = Column(Modifier.fillMaxSize().paddi
     MenuItem("⭐", "Plans") { onPick("plans") }
     MenuItem("🔄", "Check for updates") { onPick("update") }
     Spacer(Modifier.weight(1f))
-    PrimaryButton("Get Saylo Pro", onClick = { onPick("plans") })
+    PrimaryButton("Get Sayvra Pro", onClick = { onPick("plans") })
 }
 
 @Composable
@@ -233,11 +233,11 @@ private fun HomeTab(resumed: Int, revision: Int, openSettings: () -> Unit) {
     }
     Page {
         when {
-            Store.key.isEmpty() -> SetupCard("Add your Groq key", "Saylo needs a free Groq key to turn speech into text.", "Add key", openSettings)
-            !mic -> SetupCard("Allow the microphone", "Saylo listens only while you use the bubble.", "Allow") {
+            Store.key.isEmpty() -> SetupCard("Add your Groq key", "Sayvra needs a free Groq key to turn speech into text.", "Add key", openSettings)
+            !mic -> SetupCard("Allow the microphone", "Sayvra listens only while you use the bubble.", "Allow") {
                 ctx.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", ctx.packageName, null)))
             }
-            !bubble -> SetupCard("Turn on the Saylo bubble", "It appears above your keyboard in any app, so you can dictate anywhere.", "Turn on") {
+            !bubble -> SetupCard("Turn on the Sayvra bubble", "It appears above your keyboard in any app, so you can dictate anywhere.", "Turn on") {
                 ctx.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             }
         }
@@ -252,7 +252,7 @@ private fun HomeTab(resumed: Int, revision: Int, openSettings: () -> Unit) {
             }
         }
         Label("Today")
-        if (today.isEmpty()) Empty("Nothing yet today. Tap any text box and use the Saylo bubble.")
+        if (today.isEmpty()) Empty("Nothing yet today. Tap any text box and use the Sayvra bubble.")
         today.forEach { Entry(it, compact = true) }
     }
 }
@@ -339,7 +339,7 @@ private fun DictionaryTab() {
     var input by remember { mutableStateOf("") }
     Page {
         Title("Dictionary", size = 28)
-        Body("Names, brands and words Saylo should always spell your way. They go with every dictation as spelling hints.", size = 15)
+        Body("Names, brands and words Sayvra should always spell your way. They go with every dictation as spelling hints.", size = 15)
         Row(verticalAlignment = Alignment.CenterVertically) {
             TextBox(input, { input = it }, "Add a word, or a few with commas", Modifier.weight(1f))
             Spacer(Modifier.width(8.dp))
@@ -349,7 +349,7 @@ private fun DictionaryTab() {
                 input = ""
             }
         }
-        if (words.isEmpty()) Empty("No words yet. Add names or terms Saylo gets wrong, like your company or a product.")
+        if (words.isEmpty()) Empty("No words yet. Add names or terms Sayvra gets wrong, like your company or a product.")
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             words.forEach { w ->
                 Row(Modifier.clip(RoundedCornerShape(99.dp)).border(1.dp, C.line, RoundedCornerShape(99.dp)).background(C.card)
@@ -370,7 +370,7 @@ private fun StyleTab() {
     var tone by remember { mutableStateOf(Store.tone) }
     Page {
         Title("Style", size = 28)
-        Body("Your everyday tone. In AI apps and messengers Saylo writes in their own style.", size = 15)
+        Body("Your everyday tone. In AI apps and messengers Sayvra writes in their own style.", size = 15)
         ToneCards(tone) { tone = it; Store.tone = it }
         Spacer(Modifier.height(4.dp))
         Label("Writing style by app")
@@ -379,8 +379,8 @@ private fun StyleTab() {
         StyleRow("Standard", "Everything else: email, notes, docs. Clean and natural, in your tone.")
         Label("Say it to switch for one message")
         Panel(color = C.panel) {
-            listOf("“Hey Saylo, AI prompt mode, …”", "“Hey Saylo, WhatsApp mode, …”", "“Hey Saylo, email mode, …”",
-                "“Hey Saylo, translate to English, …”").forEach { Text(it, color = C.ink, fontSize = 15.sp, modifier = Modifier.padding(vertical = 3.dp)) }
+            listOf("“Hey Sayvra, AI prompt mode, …”", "“Hey Sayvra, WhatsApp mode, …”", "“Hey Sayvra, email mode, …”",
+                "“Hey Sayvra, translate to English, …”").forEach { Text(it, color = C.ink, fontSize = 15.sp, modifier = Modifier.padding(vertical = 3.dp)) }
             Spacer(Modifier.height(6.dp))
             Body("Hindi comes out as Hinglish (Hindi in English letters) unless you ask for English.", size = 13)
         }
@@ -428,7 +428,7 @@ private fun SettingsScreen(resumed: Int, checkNow: () -> Unit, rerunSetup: () ->
     Page {
         Label("Dictation")
         Panel {
-            SettingRow("Saylo bubble", if (bubble) "On" else "Off: turn it on in Accessibility") {
+            SettingRow("Sayvra bubble", if (bubble) "On" else "Off: turn it on in Accessibility") {
                 SmallButton(if (bubble) "Settings" else "Turn on") { ctx.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
             }
             SettingRow("Microphone", if (mic) "Allowed" else "Not allowed") {
@@ -436,7 +436,7 @@ private fun SettingsScreen(resumed: Int, checkNow: () -> Unit, rerunSetup: () ->
                     ctx.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", ctx.packageName, null)))
                 }
             }
-            SettingRow("Saylo keyboard", if (keyboard) "On. A backup for apps where the bubble can’t type." else "Off. A backup for apps where the bubble can’t type.", last = true) {
+            SettingRow("Sayvra keyboard", if (keyboard) "On. A backup for apps where the bubble can’t type." else "Off. A backup for apps where the bubble can’t type.", last = true) {
                 SmallButton(if (keyboard) "Switch" else "Turn on") {
                     if (keyboard) imm.showInputMethodPicker() else ctx.startActivity(Intent(Settings.ACTION_INPUT_METHOD_SETTINGS))
                 }
@@ -472,7 +472,7 @@ private fun SettingsScreen(resumed: Int, checkNow: () -> Unit, rerunSetup: () ->
             SettingRow("Delete all history", "Text and recordings on this phone") {
                 SmallButton("Delete", danger = true) { Store.clearHistory(); toast(ctx, "History deleted") }
             }
-            SettingRow("Privacy Policy", "What Saylo keeps and sends", last = true) { SmallButton("Read") { policy = true } }
+            SettingRow("Privacy Policy", "What Sayvra keeps and sends", last = true) { SmallButton("Read") { policy = true } }
         }
         Label("App")
         Panel {
@@ -520,7 +520,7 @@ private fun Plans() = Page {
         Spacer(Modifier.height(14.dp))
         PrimaryButton("Coming soon", enabled = false) {}
     }
-    Body("Pricing will be announced in a future update. Until then, Saylo is free with your own Groq key.", size = 13, center = true,
+    Body("Pricing will be announced in a future update. Until then, Sayvra is free with your own Groq key.", size = 13, center = true,
         modifier = Modifier.fillMaxWidth())
 }
 
@@ -546,9 +546,9 @@ private fun UpdateDialog(info: Updater.Info, close: () -> Unit) {
     val busy = job.state == "downloading"
     Dialog(onDismissRequest = { if (!busy) close() }) {
         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(C.card).padding(24.dp)) {
-            Text("A new version of Saylo is out", color = C.ink, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Text("A new version of Sayvra is out", color = C.ink, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(8.dp))
-            Body("Saylo ${info.latest} is ready to install. You have ${info.current}.", color = C.ink, size = 15)
+            Body("Sayvra ${info.latest} is ready to install. You have ${info.current}.", color = C.ink, size = 15)
             if (job.state == "downloading" || job.state == "ready") {
                 Spacer(Modifier.height(14.dp))
                 LinearProgressIndicator({ if (job.state == "ready" || job.total == 0L) 1f else job.done.toFloat() / job.total },
@@ -558,9 +558,9 @@ private fun UpdateDialog(info: Updater.Info, close: () -> Unit) {
             Body(note.ifEmpty {
                 when (job.state) {
                     "downloading" -> "Downloading… ${if (job.total > 0) job.done * 100 / job.total else 0}% (%.1f of %.1f MB)".format(job.done / 1048576.0, job.total / 1048576.0)
-                    "ready" -> "Downloaded. Tap Install now and confirm, and Android updates Saylo."
+                    "ready" -> "Downloaded. Tap Install now and confirm, and Android updates Sayvra."
                     "failed" -> "The download didn’t finish. ${job.error}"
-                    else -> "Saylo downloads the update, then Android asks you to confirm the install. Your settings, history and dictionary stay."
+                    else -> "Sayvra downloads the update, then Android asks you to confirm the install. Your settings, history and dictionary stay."
                 }
             }, size = 14)
             if (!busy) {

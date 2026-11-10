@@ -159,7 +159,7 @@ private fun Welcome(next: () -> Unit) =
         Title("Say it messy.", color = Color.White, size = 44, center = true)
         Title("Send it clean.", color = C.mint, size = 44, center = true)
         Spacer(Modifier.height(18.dp))
-        Body("Talk the way you think. Saylo writes it up clean, in any app.", color = Color.White.copy(alpha = 0.75f), center = true)
+        Body("Talk the way you think. Sayvra writes it up clean, in any app.", color = Color.White.copy(alpha = 0.75f), center = true)
         Spacer(Modifier.height(36.dp))
         Ribbon()
         Spacer(Modifier.weight(1f))
@@ -203,7 +203,7 @@ private fun SignIn(next: () -> Unit) {
         Text("More options", Modifier.clickable(onClick = next).padding(8.dp), color = C.ink, fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(16.dp))
         Text(buildAnnotatedString {
-            append("By continuing, you agree to Saylo’s Terms and ")
+            append("By continuing, you agree to Sayvra’s Terms and ")
             withStyle(SpanStyle(color = C.ink, fontWeight = FontWeight.SemiBold)) { append("Privacy Policy") }
             append(". Accounts are coming soon; for now your details stay on this phone.")
         }, Modifier.clickable { policy = true }.padding(horizontal = 8.dp), color = C.muted, fontSize = 12.sp,
@@ -222,7 +222,7 @@ private val ROLES = listOf("Founder / CEO", "Engineer", "Product", "Design", "Ma
 private fun AboutYou(next: () -> Unit) {
     var name by remember { mutableStateOf(Store.name) }
     var role by remember { mutableStateOf(Store.role) }
-    Step("Tell us about you", "Saylo tunes its writing to the way you work.", onNext = {
+    Step("Tell us about you", "Sayvra tunes its writing to the way you work.", onNext = {
         Store.name = name.trim(); Store.role = role; next()
     }) {
         Label("Your name")
@@ -289,7 +289,7 @@ fun ToneCards(tone: String, onPick: (String) -> Unit) = Column(verticalArrangeme
 @Composable
 private fun ToneStep(next: () -> Unit) {
     var tone by remember { mutableStateOf(Store.tone) }
-    Step("How should Saylo sound?", "In WhatsApp and AI apps Saylo uses their own style. You can change this anytime.",
+    Step("How should Sayvra sound?", "In WhatsApp and AI apps Sayvra uses their own style. You can change this anytime.",
         onNext = { Store.tone = tone; next() }) {
         ToneCards(tone) { tone = it }
     }
@@ -300,10 +300,10 @@ private fun ToneStep(next: () -> Unit) {
 private fun HowItWorks(next: () -> Unit) = Step("How it works", button = "Next", onNext = next) {
     PhoneDemo()
     Spacer(Modifier.height(24.dp))
-    Bullet("1", "Tap any text box. The Saylo bubble shows up above your keyboard.")
+    Bullet("1", "Tap any text box. The Sayvra bubble shows up above your keyboard.")
     Bullet("2", "Hold the bubble and talk. Let go, and clean text appears in the box.")
     Bullet("3", "Or tap it once to talk hands-free, then tap ✓ to send.")
-    Bullet("4", "Saylo writes for the app: a clear prompt in ChatGPT, relaxed in WhatsApp, polished everywhere else.")
+    Bullet("4", "Sayvra writes for the app: a clear prompt in ChatGPT, relaxed in WhatsApp, polished everywhere else.")
 }
 
 @Composable
@@ -351,7 +351,7 @@ private fun MicStep(resumed: Int, next: () -> Unit) {
         if (yes) next()
     }
     LaunchedEffect(resumed) { ok = granted() }
-    Step("Allow the microphone", "Saylo listens only while you hold or tap the bubble, never in the background.",
+    Step("Allow the microphone", "Sayvra listens only while you hold or tap the bubble, never in the background.",
         button = if (ok) "Next" else if (denied) "Open app settings" else "Allow microphone", onNext = {
             when {
                 ok -> next()
@@ -382,29 +382,29 @@ private fun BubbleStep(resumed: Int, next: () -> Unit) {
         on = now
     }
     if (wasOn && on) {
-        Step("The Saylo bubble is on", "Saylo can show its bubble and type into other apps.", button = "Next", onNext = next) {}
+        Step("The Sayvra bubble is on", "Sayvra can show its bubble and type into other apps.", button = "Next", onNext = next) {}
     } else if (!agreed) {
-        Step("Let Saylo type for you", "Saylo needs Android’s Accessibility permission to show its bubble and type into other apps.",
+        Step("Let Sayvra type for you", "Sayvra needs Android’s Accessibility permission to show its bubble and type into other apps.",
             button = "Agree", onNext = { agreed = true }, extra = {
                 Spacer(Modifier.height(10.dp))
                 SecondaryButton("Not now", onClick = next)
             }) {
             Panel(color = C.panel) {
-                Disclosure("What Saylo uses it for", "To see when a text box is focused, show the bubble above your keyboard, and type your dictation into that box.")
-                Disclosure("What Saylo reads", "The app you’re in and your browser’s address bar, to pick the writing style (a prompt for ChatGPT, relaxed for WhatsApp), and the text box you’re dictating into.")
+                Disclosure("What Sayvra uses it for", "To see when a text box is focused, show the bubble above your keyboard, and type your dictation into that box.")
+                Disclosure("What Sayvra reads", "The app you’re in and your browser’s address bar, to pick the writing style (a prompt for ChatGPT, relaxed for WhatsApp), and the text box you’re dictating into.")
                 Disclosure("What it never does", "It skips password fields, doesn’t store or send what’s on your screen, and doesn’t act on its own. Only your recording goes to Groq.", last = true)
             }
         }
     } else {
         val activity = ctx as Activity
-        Step("Turn on the Saylo bubble", button = "Open settings", onNext = {
+        Step("Turn on the Sayvra bubble", button = "Open settings", onNext = {
             ctx.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }, extra = {
             Text("I’ll do it later", Modifier.fillMaxWidth().clickable(onClick = next).padding(12.dp), color = C.muted, textAlign = TextAlign.Center)
         }) {
             Instruction("1", "Open Installed apps (or Downloaded apps)", "Installed apps")
-            Instruction("2", "Tap Saylo bubble and turn it on", "Saylo bubble          On")
-            Instruction("3", "Leave the shortcut off", "Saylo bubble shortcut     Off")
+            Instruction("2", "Tap Sayvra bubble and turn it on", "Sayvra bubble          On")
+            Instruction("3", "Leave the shortcut off", "Sayvra bubble shortcut     Off")
             Spacer(Modifier.height(12.dp))
             Panel(color = C.warm) {
                 Text("Greyed out or “Restricted setting”?", color = C.ink, fontWeight = FontWeight.SemiBold)
@@ -440,7 +440,7 @@ private fun PrivacyStep(next: () -> Unit) {
     var keep by remember { mutableStateOf(Store.keepHistory) }
     var agree by remember { mutableStateOf(Store.agreedPrivacy) }
     var policy by remember { mutableStateOf(false) }
-    Step("Your privacy", "Your recording goes from this phone straight to Groq to be turned into text. Saylo has no server of its own.",
+    Step("Your privacy", "Your recording goes from this phone straight to Groq to be turned into text. Sayvra has no server of its own.",
         enabled = agree, onNext = { Store.keepHistory = keep; Store.agreedPrivacy = true; next() }) {
         Panel {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -456,7 +456,7 @@ private fun PrivacyStep(next: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically) {
             Checkbox(agree, { agree = it }, colors = CheckboxDefaults.colors(checkedColor = C.accent))
             Text(buildAnnotatedString {
-                append("I agree to Saylo’s ")
+                append("I agree to Sayvra’s ")
                 withStyle(SpanStyle(color = C.accent, fontWeight = FontWeight.SemiBold)) { append("Privacy Policy") }
             }, Modifier.weight(1f), color = C.ink, fontSize = 15.sp)
             SmallButton("Read") { policy = true }
@@ -473,7 +473,7 @@ private fun KeyStep(next: () -> Unit) {
     var msg by remember { mutableStateOf(if (Store.key.isNotEmpty()) "Using your own Groq key ✓" else "") }
     var ok by remember { mutableStateOf(Store.key.isNotEmpty()) }
     var checking by remember { mutableStateOf(false) }
-    Step("Add your free Groq key", "Saylo uses Groq to turn speech into text. The key is free, takes a minute, and stays on this phone.",
+    Step("Add your free Groq key", "Sayvra uses Groq to turn speech into text. The key is free, takes a minute, and stays on this phone.",
         button = if (ok) "Continue" else if (checking) "Checking…" else "Check and save", enabled = !checking && (ok || key.isNotBlank()),
         onNext = {
             if (ok && key.isBlank()) next() else {
@@ -499,7 +499,7 @@ private fun KeyStep(next: () -> Unit) {
         TextBox(key, { key = it }, if (ok) "Paste a new key to replace it" else "gsk_…", secret = true)
         if (msg.isNotEmpty()) Text(msg, Modifier.padding(top = 8.dp), color = if (msg.endsWith("✓")) C.accentInk else C.err, fontSize = 14.sp)
         Spacer(Modifier.height(16.dp))
-        Body("Groq’s free plan has a per-minute limit. If you reach it, Saylo keeps your recording and sends it when the limit resets.", size = 13)
+        Body("Groq’s free plan has a per-minute limit. If you reach it, Sayvra keeps your recording and sends it when the limit resets.", size = 13)
     }
 }
 
@@ -530,8 +530,8 @@ private fun TryIt(next: () -> Unit) {
         onDispose { Dictation.removeListener(l) }
     }
     val bubbleOn = SayloAccessibility.isOn(ctx)
-    Step("Give it a try", if (bubbleOn) "Tap the box below, then hold the Saylo bubble above your keyboard and talk. Let go when you’re done."
-        else "The bubble is off. Switch to the Saylo keyboard and hold its mic, or turn the bubble on later in Settings.",
+    Step("Give it a try", if (bubbleOn) "Tap the box below, then hold the Sayvra bubble above your keyboard and talk. Let go when you’re done."
+        else "The bubble is off. Switch to the Sayvra keyboard and hold its mic, or turn the bubble on later in Settings.",
         button = if (done) "Next" else "Skip for now", onNext = next) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             DEMOS.forEachIndexed { i, d -> Chip(d.first, i == tab) { tab = i; text = "" } }
@@ -567,9 +567,9 @@ private fun AllSet(done: () -> Unit) = Column(Modifier.fillMaxSize().padding(24.
     Spacer(Modifier.height(12.dp))
     Title("You’re all set", size = 40, center = true)
     Spacer(Modifier.height(10.dp))
-    Body("Saylo is ready. Tap any text box and talk.", color = C.ink, center = true)
+    Body("Sayvra is ready. Tap any text box and talk.", color = C.ink, center = true)
     Spacer(Modifier.weight(1f))
-    PrimaryButton("Start using Saylo", onClick = done)
+    PrimaryButton("Start using Sayvra", onClick = done)
 }
 
 // ---------- the privacy policy ----------
@@ -596,11 +596,11 @@ fun PrivacyPolicy(close: () -> Unit) = androidx.compose.ui.window.Dialog(close,
 }
 
 private val POLICY = listOf(
-    "When Saylo listens" to "Only while you hold or tap the Saylo bubble or the mic on the Saylo keyboard. Never in the background.",
-    "Where your voice goes" to "Each recording goes from your phone straight to Groq (groq.com) using your own Groq key, to be turned into text and cleaned up. Groq’s privacy policy covers that. Saylo has no server of its own and never sees your recordings.",
-    "What stays on your phone" to "Your settings, your Groq key, your dictionary and, if you keep history on, your dictations with each recording for 30 days. You can turn history off or delete it anytime in Settings. Uninstalling Saylo deletes all of it.",
+    "When Sayvra listens" to "Only while you hold or tap the Sayvra bubble or the mic on the Sayvra keyboard. Never in the background.",
+    "Where your voice goes" to "Each recording goes from your phone straight to Groq (groq.com) using your own Groq key, to be turned into text and cleaned up. Groq’s privacy policy covers that. Sayvra has no server of its own and never sees your recordings.",
+    "What stays on your phone" to "Your settings, your Groq key, your dictionary and, if you keep history on, your dictations with each recording for 30 days. You can turn history off or delete it anytime in Settings. Uninstalling Sayvra deletes all of it.",
     "Accessibility" to "The bubble uses Android’s Accessibility permission to see which app you’re in, read your browser’s address bar (to pick a writing style), and type into the focused text box. It skips password fields and doesn’t store or send what’s on your screen.",
     "Your account" to "Sign-in isn’t connected to a server yet. Your name and choices from setup stay on this phone.",
-    "Updates" to "Saylo checks GitHub for a newer version when you open it. That request contains no personal data.",
+    "Updates" to "Sayvra checks GitHub for a newer version when you open it. That request contains no personal data.",
     "Questions" to "Open an issue at github.com/Mitovoid-AI/saylo.",
 )

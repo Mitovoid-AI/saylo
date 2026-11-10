@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
  *  text back to the text box it was spoken into (or the clipboard when that box is gone). While the network or
  *  Groq is down, clips stay saved and are retried, also after a restart. Like the worker in the Windows app.py. */
 object Dictation {
-    private const val TAG = "Saylo"
+    private const val TAG = "Sayvra"
     private val RETRY_WAITS = longArrayOf(2, 3, 5, 10, 20, 30, 60)  // seconds between tries while sending fails
     private const val RECONNECT_MS = 10_000L  // "Reconnecting…" this long, then "Saved…"
     const val MIN_CLIP_SECONDS = 0.3
@@ -112,8 +112,8 @@ object Dictation {
                 wait = RETRY_WAITS[minOf(fails, RETRY_WAITS.size) - 1]
                 Log.w(TAG, "couldn't send; ${Store.pending().size} clip(s) saved, next try in ${wait}s: $error")
                 when {
-                    Store.key.isEmpty() -> emit(Message("Add your Groq key in Saylo. Your dictation is saved."))
-                    Groq.isAuth(error) -> emit(Message("Groq rejected your key. Saved; update it in Saylo."))
+                    Store.key.isEmpty() -> emit(Message("Add your Groq key in Sayvra. Your dictation is saved."))
+                    Groq.isAuth(error) -> emit(Message("Groq rejected your key. Saved; update it in Sayvra."))
                     System.currentTimeMillis() - failingSince < RECONNECT_MS ->
                         emit(Retrying(if (Groq.isRateLimit(error)) "Groq is busy, retrying…" else "Reconnecting…"))
                     new || !toldSaved -> {
@@ -179,7 +179,7 @@ object Dictation {
     fun transcribe(audio: ByteArray, res: Outcome, mode: String) {
         val key = Store.key
         val words = Store.dictionary
-        val prompt = Groq.hint((listOf("Saylo") + words).distinct())  // "Saylo" helps Whisper hear the commands
+        val prompt = Groq.hint((listOf("Sayvra") + words).distinct())  // "Sayvra" helps Whisper hear the commands
         res.raw = Groq.transcribe(audio, key, prompt)
         if (Groq.isHallucination(res.raw, prompt)) {
             res.skipped = "no speech heard"
@@ -215,7 +215,7 @@ object Dictation {
 
     fun copy(text: String) {
         (app.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager)
-            .setPrimaryClip(ClipData.newPlainText("Saylo", text))
+            .setPrimaryClip(ClipData.newPlainText("Sayvra", text))
     }
 
     fun toast(text: String) = main.post { Toast.makeText(app, text, Toast.LENGTH_LONG).show() }

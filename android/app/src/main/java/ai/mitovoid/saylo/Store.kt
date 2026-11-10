@@ -8,7 +8,7 @@ import java.io.File
 import java.time.LocalDate
 import java.util.UUID
 
-/** Everything Saylo keeps on this phone, like the Windows app's store.py: settings and the Groq key (app-private
+/** Everything Sayvra keeps on this phone, like the Windows app's store.py: settings and the Groq key (app-private
  *  preferences), the dictionary, history (history.jsonl), each recording for 30 days (audio/) and clips still
  *  waiting to be sent (pending/). Nothing leaves the phone except the clips sent to Groq. */
 object Store {

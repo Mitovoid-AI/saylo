@@ -1,4 +1,4 @@
-# Builds dist\Saylo.exe (single file, no console window), then dist\Saylo-Setup.exe if Inno Setup 6
+# Builds dist\Sayvra.exe (single file, no console window), then dist\Sayvra-Setup.exe if Inno Setup 6
 # is installed (winget install JRSoftware.InnoSetup). Run from this folder: .\build.ps1
 # The GROQ_API_KEY line from .env is packed in as the built-in default key (used when the user skips
 # the key step). Anyone with the exe can extract it: only share builds with people you trust.
@@ -20,11 +20,11 @@ if ($bundled) {
     $addData = "--add-data build\bundled.env;."
 }
 # PyInstaller logs to stderr; cmd /c keeps PowerShell 5.1 from treating that as an error.
-cmd /c ".\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --name Saylo --icon assets\saylo.ico --collect-submodules pynput --collect-submodules pystray --add-data ui;ui --add-data prompts;prompts $addData app.py 2>&1"
+cmd /c ".\.venv\Scripts\python.exe -m PyInstaller --noconfirm --onefile --windowed --name Sayvra --icon assets\sayvra.ico --collect-submodules pynput --collect-submodules pystray --add-data ui;ui --add-data prompts;prompts $addData app.py 2>&1"
 $code = $LASTEXITCODE
-Remove-Item -Recurse -Force build, Saylo.spec -ErrorAction SilentlyContinue
+Remove-Item -Recurse -Force build, Sayvra.spec -ErrorAction SilentlyContinue
 if ($code -ne 0) { throw "PyInstaller failed ($code)" }
-Write-Host "Built: $PSScriptRoot\dist\Saylo.exe"
+Write-Host "Built: $PSScriptRoot\dist\Sayvra.exe"
 
 $iscc = @("$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe", "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
           "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe", "$env:ProgramFiles\Inno Setup 7\ISCC.exe",
@@ -37,4 +37,4 @@ if (-not $iscc) {
 $verArg = if ($env:SAYLO_VERSION) { "/DAppVersion=$env:SAYLO_VERSION" } else { "" }
 cmd /c "`"$iscc`" /Q $verArg installer.iss 2>&1"
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup failed ($LASTEXITCODE)" }
-Write-Host "Built: $PSScriptRoot\dist\Saylo-Setup.exe"
+Write-Host "Built: $PSScriptRoot\dist\Sayvra-Setup.exe"

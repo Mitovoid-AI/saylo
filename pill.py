@@ -115,7 +115,7 @@ class Pill:
         user32.SystemParametersInfoW(0x30, 0, ctypes.byref(area), 0)  # SPI_GETWORKAREA
         self._w, self._h = round(self.WIDTH * self._scale), round(self.HEIGHT * self._scale)
         self._pos = w.POINT((area.left + area.right - self._w) // 2, area.bottom - self._h - round(self.MARGIN * self._scale))
-        self._hwnd = user32.CreateWindowExW(EX_STYLE, "SayloPill", "Saylo", 0x80000000,  # WS_POPUP
+        self._hwnd = user32.CreateWindowExW(EX_STYLE, "SayloPill", "Sayvra", 0x80000000,  # WS_POPUP
                                             self._pos.x, self._pos.y, self._w, self._h, None, None, hinst, None)
         # A 32-bit top-down bitmap the frames are copied into, then handed to UpdateLayeredWindow.
         bmi = BITMAPINFOHEADER(biSize=ctypes.sizeof(BITMAPINFOHEADER), biWidth=self._w, biHeight=-self._h,
@@ -254,10 +254,10 @@ class Pill:
                                    self._dc, ctypes.byref(w.POINT(0, 0)), 0, ctypes.byref(blend), 2)  # ULW_ALPHA
 
     def _hint_card(self, lines, k):
-        """The spoken commands in a card for above the pill, "Hey Saylo," dimmed and the command bright. Drawn
+        """The spoken commands in a card for above the pill, "Hey Sayvra," dimmed and the command bright. Drawn
         once per set of lines; each frame only places (and fades) it."""
         if self._card[0] != lines:
-            lead, title = "Hey Saylo, ", "YOU CAN SAY"
+            lead, title = "Hey Sayvra, ", "YOU CAN SAY"
             lead_w = self._hint_font.getlength(lead)
             width = max(max(lead_w + self._hint_font.getlength(x.removeprefix(lead)) for x in lines),
                         self._hint_title.getlength(title)) + 28 * k

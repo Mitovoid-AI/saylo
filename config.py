@@ -1,4 +1,4 @@
-"""Loads settings, first match wins: %APPDATA%\\Saylo\\.env (the user's own key from onboarding),
+"""Loads settings, first match wins: %APPDATA%\\Sayvra\\.env (the user's own key from onboarding),
 then .env next to the app, then bundled.env packed into the exe (the built-in default key and the version)."""
 import os
 import sys
@@ -6,7 +6,15 @@ from pathlib import Path
 
 from dotenv import dotenv_values, load_dotenv
 
-APP_DIR = Path(os.getenv("APPDATA", Path.home())) / "Saylo"
+_APPDATA = Path(os.getenv("APPDATA", Path.home()))
+APP_DIR = _APPDATA / "Sayvra"
+# Sayvra was called Saylo: move its data folder (key, history, settings) over on the first start. If the old
+# folder is busy (the update's installer may still be running from it), keep using it and try again next start.
+if not APP_DIR.exists() and (_APPDATA / "Saylo").is_dir():
+    try:
+        (_APPDATA / "Saylo").rename(APP_DIR)
+    except OSError:
+        APP_DIR = _APPDATA / "Saylo"
 USER_ENV = APP_DIR / ".env"
 SOURCE_DIR = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).parent
 BUNDLED_ENV = Path(getattr(sys, "_MEIPASS", SOURCE_DIR)) / "bundled.env"

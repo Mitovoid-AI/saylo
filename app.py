@@ -1,4 +1,4 @@
-"""Saylo desktop app: a pywebview window (UI in ui/) on top of the dictation engine.
+"""Sayvra desktop app: a pywebview window (UI in ui/) on top of the dictation engine.
 The page calls the Api methods below via window.pywebview.api; Python pushes live events
 (recording / processing / result / error) to the page with saylo.on(event).
 Build to an .exe with build.ps1."""
@@ -85,7 +85,7 @@ def save_groq_key(key: str) -> None:
 
 
 class TrayPopup:
-    """Saylo's own corner card (ui/popup.html) in place of a Windows toast. Public methods are called
+    """Sayvra's own corner card (ui/popup.html) in place of a Windows toast. Public methods are called
     from the popup page; it closes itself after a few seconds."""
     WIDTH, HEIGHT, MARGIN = 380, 168, 16
 
@@ -102,7 +102,7 @@ class TrayPopup:
         y = int(area.bottom / scale) - self.HEIGHT - self.MARGIN
         in_use = user32.GetForegroundWindow()
         self._window = webview.create_window(
-            "Saylo", str(UI_DIR / "popup.html"), js_api=self, width=self.WIDTH, height=self.HEIGHT,
+            "Sayvra", str(UI_DIR / "popup.html"), js_api=self, width=self.WIDTH, height=self.HEIGHT,
             x=x, y=y, resizable=False, frameless=True, easy_drag=False, on_top=True, focus=False,
             background_color="#FFFFFF")
         # Keep it off the taskbar and Alt+Tab (tool window), and give it Windows 11 rounded corners.
@@ -424,7 +424,7 @@ class Api:
 
     # ---------- updates ----------
     def update_check(self, manual: bool = False) -> dict:
-        """Whether a newer Saylo is out. The page asks when the window opens (manual=False) and shows the
+        """Whether a newer Sayvra is out. The page asks when the window opens (manual=False) and shows the
         update dialog when "show" is set, which is at most UPDATE_PROMPTS_PER_DAY times a day. The sidebar's
         Check for updates asks with manual=True and gets a fresh answer every time."""
         info = {**updates.check(force=manual), "show": False}
@@ -444,13 +444,13 @@ class Api:
         return updates.status()
 
     def install_update(self) -> dict:
-        """Runs the downloaded installer silently and quits. The installer replaces Saylo.exe and, because of
+        """Runs the downloaded installer silently and quits. The installer replaces Sayvra.exe and, because of
         /relaunch=1, opens the new version when it's done."""
         path = updates.installer()
         if not path:
             return {"ok": False, "error": "The update isn't downloaded yet."}
         log.info("installing update from %s", path.name)
-        # PYINSTALLER_RESET_ENVIRONMENT: the Saylo.exe the installer opens is a fresh app, not a child of this one.
+        # PYINSTALLER_RESET_ENVIRONMENT: the Sayvra.exe the installer opens is a fresh app, not a child of this one.
         subprocess.Popen([str(path), "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/relaunch=1"],
                          env={**os.environ, "PYINSTALLER_RESET_ENVIRONMENT": "1"},
                          creationflags=subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP)
@@ -561,7 +561,7 @@ class Api:
             self._emit("opened")  # the page checks for a newer version
 
     def _quit(self):
-        if self._quitting:  # an update quits Saylo, then the installer asks it to quit as well
+        if self._quitting:  # an update quits Sayvra, then the installer asks it to quit as well
             return
         log.info("quitting")
         self._quitting = True
@@ -572,17 +572,17 @@ class Api:
 
 
 def main():
-    # --quit: stop a running Saylo (used by the installer before updating/uninstalling).
+    # --quit: stop a running Sayvra (used by the installer before updating/uninstalling).
     # --tray: start hidden in the tray (used by the Windows startup entry).
     if "--quit" in sys.argv:
         tray.signal_running("quit")
         return
     to_tray = "--tray" in sys.argv
     if tray.signal_running("ping" if to_tray else "show"):
-        return  # Saylo is already running; a normal launch brings its window up instead
+        return  # Sayvra is already running; a normal launch brings its window up instead
     api = Api()
     hidden = to_tray and api._dictation_on  # first run still needs the setup window
-    window = webview.create_window("Saylo", str(UI_DIR / "index.html"), js_api=api, hidden=hidden,
+    window = webview.create_window("Sayvra", str(UI_DIR / "index.html"), js_api=api, hidden=hidden,
                                    width=1120, height=740, min_size=(940, 640), background_color="#FBF9F6")
     api._window = window
     api._quitting = False

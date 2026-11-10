@@ -1,4 +1,4 @@
-// Saylo UI. Talks to Python through window.pywebview.api; Python pushes live events via saylo.on().
+// Sayvra UI. Talks to Python through window.pywebview.api; Python pushes live events via saylo.on().
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
 let api, st, profile;
@@ -345,7 +345,7 @@ async function renderDictionary(words) {
   words = words || await api.dictionary();
   $('#dictList').innerHTML = words.length
     ? words.map(w => `<span class="chip">${esc(w)}<button class="x" data-word="${esc(w)}" title="Remove">×</button></span>`).join('')
-    : '<div class="empty" style="width:100%">No words yet. Add names or terms Saylo gets wrong, like your company or a product.</div>';
+    : '<div class="empty" style="width:100%">No words yet. Add names or terms Sayvra gets wrong, like your company or a product.</div>';
 }
 $('#dictForm').onsubmit = async ev => {
   ev.preventDefault();
@@ -379,9 +379,9 @@ $('#rerun').onclick = async () => { await api.restart_setup(); st.onboarded = fa
 $('#openLog').onclick = () => api.open_log();
 
 // ---------------- updates ----------------
-// Opening the window asks whether a newer Saylo is out; Python decides if the dialog may show (a few times a
+// Opening the window asks whether a newer Sayvra is out; Python decides if the dialog may show (a few times a
 // day). The sidebar's Check for updates always answers, with the dialog or a toast. In the dialog, Update now
-// downloads the installer inside Saylo (progress bar), then Install now updates Saylo and reopens it.
+// downloads the installer inside Sayvra (progress bar), then Install now updates Sayvra and reopens it.
 let updState = 'idle', updPoll = null;
 const mb = n => (n / 1048576).toFixed(1);
 function showUpdateState(s) {
@@ -390,10 +390,10 @@ function showUpdateState(s) {
   $('#updBar').classList.toggle('hidden', s.state === 'idle' || s.state === 'failed');
   $('#updBar i').style.width = (s.state === 'downloading' ? pct : 100) + '%';
   $('#updNote').textContent = {
-    idle: 'Saylo downloads the update, then closes, installs it and opens again. Your settings, history and dictionary stay.',
+    idle: 'Sayvra downloads the update, then closes, installs it and opens again. Your settings, history and dictionary stay.',
     downloading: `Downloading… ${pct}% (${mb(s.done)} of ${mb(s.total)} MB)`,
-    ready: 'Downloaded. Install now and Saylo closes, updates and opens again in a few seconds.',
-    installing: 'Installing… Saylo will open again in a few seconds.',
+    ready: 'Downloaded. Install now and Sayvra closes, updates and opens again in a few seconds.',
+    installing: 'Installing… Sayvra will open again in a few seconds.',
     failed: `The download didn’t finish. ${s.error}`,
   }[s.state];
   $('#updGet').textContent = {ready: 'Install now', failed: 'Try again'}[s.state] || 'Update now';
@@ -411,7 +411,7 @@ async function checkUpdate(manual = false) {
   if (!$('#updateModal').classList.contains('hidden')) return;
   const u = await api.update_check(manual);
   if (u.show || (manual && u.available)) {
-    $('#updText').innerHTML = `Saylo <b>${esc(u.latest)}</b> is ready to install. You have ${esc(u.current)}.`;
+    $('#updText').innerHTML = `Sayvra <b>${esc(u.latest)}</b> is ready to install. You have ${esc(u.current)}.`;
     showUpdateState(u.download.version === u.latest ? u.download : {state: 'idle'});
     $('#updateModal').classList.remove('hidden'); $('#updGet').focus();
     if (updState === 'downloading') followDownload();

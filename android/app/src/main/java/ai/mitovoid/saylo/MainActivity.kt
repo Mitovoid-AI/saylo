@@ -12,7 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
-/** The Saylo app: onboarding on first run (Onboarding.kt), then Home and the rest (Main.kt). The bubble and the
+/** The Sayvra app: onboarding on first run (Onboarding.kt), then Home and the rest (Main.kt). The bubble and the
  *  keyboard open it when something is missing (the key, the microphone). */
 class MainActivity : ComponentActivity() {
     /** Bumped on every resume, so screens re-check permissions changed in Android's Settings. */

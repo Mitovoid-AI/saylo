@@ -1,7 +1,7 @@
 """Where a dictation is going, to pick its cleanup style ("mode"): "ai" for prompts to an AI (IDEs, terminals,
 AI chat sites and apps), "whatsapp" for personal messengers, "default" (the standard cleanup) for email, notes
 and everything else. It goes by the app in front and, in a browser, by the site in the address bar. A
-dictation can also start with "Hey Saylo, WhatsApp mode" (or AI prompt / email mode) to pick one for itself."""
+dictation can also start with "Hey Sayvra, WhatsApp mode" (or AI prompt / email mode) to pick one for itself."""
 import ctypes
 import ctypes.wintypes as w
 import logging
@@ -17,8 +17,8 @@ SPOKEN = {"ai": "AI prompt mode", "whatsapp": "WhatsApp mode", "default": "email
 
 def hints(mode: str) -> list[str]:
     """The commands worth offering in this mode: the other styles, and translating."""
-    return [f"Hey Saylo, {SPOKEN[m]}" for m in ("ai", "whatsapp", "default") if m != mode] + \
-           ["Hey Saylo, translate to English"]
+    return [f"Hey Sayvra, {SPOKEN[m]}" for m in ("ai", "whatsapp", "default") if m != mode] + \
+           ["Hey Sayvra, translate to English"]
 
 APPS = {
     "ai": {
@@ -116,13 +116,15 @@ def detect(hwnd: int) -> str:
     return mode
 
 
-# Commands to Saylo inside a dictation: a mode ("WhatsApp mode", "AI prompt style") and "translate to English".
+# Commands to Sayvra inside a dictation: a mode ("WhatsApp mode", "AI prompt style") and "translate to English".
 # Two forms count, anywhere in the dictation:
-# - a sentence starting with Saylo's name, then commands, then text: "Hey Saylo, WhatsApp mode, I'll be late"
-# - sentences made only of command words, with Saylo's name among them: "Switch mode. Saylo. Use AI prompt mode."
-# A sentence with any other words is text, so "my buddy Saylo" or "WhatsApp mode is great" is written as said.
-# Saylo's name, plus what Whisper has written for it ("Shallow", "Hello"); these only count before a command.
-_WAKE = (r"(?:saylo|say lo|say low|saylow|sailo|salo|sayla|silo|sylo|shailo|shylo|shilo|seylo|say hello"
+# - a sentence starting with Sayvra's name, then commands, then text: "Hey Sayvra, WhatsApp mode, I'll be late"
+# - sentences made only of command words, with Sayvra's name among them: "Switch mode. Sayvra. Use AI prompt mode."
+# A sentence with any other words is text, so "my buddy Sayvra" or "WhatsApp mode is great" is written as said.
+# Sayvra's name, its old name Saylo (still accepted), plus what Whisper has written for them ("Shallow",
+# "Hello"); these only count before a command.
+_WAKE = (r"(?:sayvra|say vra|sayvera|say vera|saivra|savra|sevra|sayva|say bra|sabra|zavra"
+         r"|saylo|say lo|say low|saylow|sailo|salo|sayla|silo|sylo|shailo|shylo|shilo|seylo|say hello"
          r"|shallow|hello|hallo|halo|solo|sello|shello)")
 _MODE_WORDS = {"ai": r"ai prompt|eia prompt|prompt|ai|eia|coding",  # "EIA": Whisper's "AI"
                "whatsapp": r"whatsapp|whats app|what's app|chat|texting",
@@ -133,7 +135,8 @@ _ATOM = re.compile(
     rf"(?P<mode>{'|'.join(_MODE_WORDS.values())})\s+(?:mode|style)\b"
     r"|(?P<translate>translate(?:\s+(?:it|this|everything|all))?(?:\s+(?:to|into|in))?\s+english|english\s+translation)\b)"
     r"[\s,.!:;-]*(?:(?:and|also|then)\s+)?", re.IGNORECASE)
-_VOCAB = set("""hey hi ok okay please now saylo say lo low saylow sailo salo sayla silo sylo shailo shylo shilo seylo hello
+_VOCAB = set("""hey hi ok okay please now sayvra vra sayvera vera saivra savra sevra sayva bra sabra zavra
+    saylo say lo low saylow sailo salo sayla silo sylo shailo shylo shilo seylo hello
     shallow hallo halo solo sello shello hesh
     switch shift change go move use to into in the a it this mode style translate translation english and also then on
     turn everything all whatsapp whats what's app chat texting ai eia prompt coding email e mail normal default note notes
@@ -164,12 +167,12 @@ def parse_command(raw: str) -> tuple[str | None, bool, str]:
         named = re.search(rf"\b{_WAKE}\b", " ".join(words))
         run_mode = next((_WORD_MODE[x] for x in words if x in _WORD_MODE), None) if {"mode", "style"} & set(words) else None
         run_translate = "translate" in words or "translation" in words
-        if run > i and named and (run_mode or run_translate):  # only command words, naming Saylo
+        if run > i and named and (run_mode or run_translate):  # only command words, naming Sayvra
             mode, translate, i = run_mode or mode, translate or run_translate, run
             continue
         sentence = sentences[i]
         if (p := _PREFIX.match(sentence)) and (a := _ATOM.match(sentence, p.end())):
-            while a:  # "Hey Saylo, WhatsApp mode and translate to English, ..." then the text
+            while a:  # "Hey Sayvra, WhatsApp mode and translate to English, ..." then the text
                 mode = _mode_of(a.group("mode")) if a.group("mode") else mode
                 translate = translate or bool(a.group("translate"))
                 end, a = a.end(), _ATOM.match(sentence, a.end())

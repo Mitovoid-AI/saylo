@@ -15,11 +15,15 @@ import java.net.URL
 import java.security.MessageDigest
 
 /** In-app updates, like the Windows app's updates.py: finds the latest GitHub release, downloads its APK
- *  inside Saylo (checked against GitHub's size and SHA-256), then hands it to Android's installer, which asks
+ *  inside Sayvra (checked against GitHub's size and SHA-256), then hands it to Android's installer, which asks
  *  the user to confirm. Local builds are "dev" and never get an update offered. */
 object Updater {
     private const val LATEST = "https://api.github.com/repos/Mitovoid-AI/saylo/releases/latest"
-    private const val SOURCE = "https://github.com/Mitovoid-AI/saylo/releases/download/"  // APKs only from here
+    // The repo was called saylo before the rename to sayvra; GitHub redirects the old name to the new one.
+    private val SOURCES = listOf("https://github.com/Mitovoid-AI/sayvra/releases/download/",  // APKs only from here
+        "https://github.com/Mitovoid-AI/saylo/releases/download/")
+    // The old name stays in releases until old copies have updated.
+    private val APK_NAMES = listOf("sayvra-android.apk", "saylo-android.apk")
     const val PROMPTS_PER_DAY = 3  // the dialog on opening the app shows at most this often a day
 
     data class Info(val current: String, val latest: String, val available: Boolean)
@@ -56,19 +60,20 @@ object Updater {
             conn.setRequestProperty("Accept", "application/vnd.github+json")
             val json = JSONObject(conn.inputStream.bufferedReader().readText())
             val assets = json.getJSONArray("assets")
-            val apk = (0 until assets.length()).map { assets.getJSONObject(it) }.firstOrNull { it.optString("name") == "saylo-android.apk" }
+            val byName = (0 until assets.length()).map { assets.getJSONObject(it) }.associateBy { it.optString("name") }
+            val apk = APK_NAMES.firstNotNullOfOrNull { byName[it] }
             val version = json.getString("tag_name").removePrefix("v")
             release = JSONObject().put("version", version).put("url", apk?.optString("browser_download_url").orEmpty())
                 .put("size", apk?.optLong("size") ?: 0).put("sha256", apk?.optString("digest").orEmpty().removePrefix("sha256:"))
             version
         } catch (e: Exception) {
-            Log.i("Saylo", "update check failed: $e")
+            Log.i("Sayvra", "update check failed: $e")
             ""
         }
         return Info(current, latest, newer(latest, current))
     }
 
-    private fun apk(c: Context, version: String) = File(File(c.cacheDir, "updates").apply { mkdirs() }, "saylo-$version.apk")
+    private fun apk(c: Context, version: String) = File(File(c.cacheDir, "updates").apply { mkdirs() }, "sayvra-$version.apk")
 
     /** Starts downloading the latest APK in the background; follow it with [job]. */
     @Synchronized
@@ -76,7 +81,7 @@ object Updater {
         val version = release.optString("version")
         if ((job.state == "downloading" || job.state == "ready") && job.version == version) return
         val url = release.optString("url")
-        if (!url.startsWith(SOURCE)) {
+        if (SOURCES.none { url.startsWith(it) }) {
             job = Job("failed", version, error = "This release has no Android app to download.")
             return
         }
@@ -116,7 +121,7 @@ object Updater {
                 part.renameTo(file)
                 job = job.copy(state = "ready")
             } catch (e: Exception) {
-                Log.w("Saylo", "update download failed", e)
+                Log.w("Sayvra", "update download failed", e)
                 part.delete()
                 job = job.copy(state = "failed", error = if (e is IOException) "Check your internet connection."
                     else "The file didn’t match the release.")
@@ -124,14 +129,14 @@ object Updater {
         }.start()
     }
 
-    /** Opens Android's installer for the downloaded APK. Returns a message instead when Saylo first needs
+    /** Opens Android's installer for the downloaded APK. Returns a message instead when Sayvra first needs
      *  "Install unknown apps" (Settings opens for it). */
     fun install(a: Activity): String? {
         val file = apk(a, job.version)
         if (job.state != "ready" || !file.exists()) return "The update isn’t downloaded yet."
         if (!a.packageManager.canRequestPackageInstalls()) {
             a.startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${a.packageName}")))
-            return "Allow Saylo to install updates, then tap Install now again."
+            return "Allow Sayvra to install updates, then tap Install now again."
         }
         val uri = FileProvider.getUriForFile(a, "${a.packageName}.files", file)
         a.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/vnd.android.package-archive")

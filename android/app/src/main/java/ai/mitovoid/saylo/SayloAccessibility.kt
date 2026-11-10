@@ -16,7 +16,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.view.accessibility.AccessibilityWindowInfo
 
-/** Saylo in any app: shows the bubble while a text box is focused (above the keyboard), records when it's
+/** Sayvra in any app: shows the bubble while a text box is focused (above the keyboard), records when it's
  *  used, and types the cleaned text into that box. It reads only which app is in front, the address bar of a
  *  few browsers (for the writing style) and the focused text box; never password fields. */
 class SayloAccessibility : AccessibilityService() {
@@ -60,7 +60,7 @@ class SayloAccessibility : AccessibilityService() {
         } catch (e: Exception) { null }
         val field = focusedField()
         val sayloKeyboard = Settings.Secure.getString(contentResolver, Settings.Secure.DEFAULT_INPUT_METHOD)
-            ?.startsWith("$packageName/") == true  // the Saylo keyboard has its own mic
+            ?.startsWith("$packageName/") == true  // the Sayvra keyboard has its own mic
         if (field != null && !sayloKeyboard) {
             // Above the on-screen keyboard; with a hardware keyboard there is none, so near the bottom edge.
             val bounds = Rect().also { keyboard?.getBoundsInScreen(it) }
@@ -90,7 +90,7 @@ class SayloAccessibility : AccessibilityService() {
 
     fun level() = recorder.level
 
-    /** Starts listening for the focused text box; returns its mode, or null when Saylo isn't set up yet. */
+    /** Starts listening for the focused text box; returns its mode, or null when Sayvra isn't set up yet. */
     fun startRecording(): String? {
         if (Store.key.isEmpty() || checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             startActivity(Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -101,7 +101,7 @@ class SayloAccessibility : AccessibilityService() {
             recorder.start()
             mode
         } catch (e: Exception) {
-            Log.w("Saylo", "mic start failed", e)
+            Log.w("Sayvra", "mic start failed", e)
             Dictation.toast("Microphone not available")
             null
         }
@@ -168,7 +168,7 @@ class SayloAccessibility : AccessibilityService() {
         )
         private val BROWSERS = URL_BARS.map { it.substringBefore(":") }.toSet()
 
-        /** Whether the user turned on Saylo in Accessibility settings. */
+        /** Whether the user turned on Sayvra in Accessibility settings. */
         fun isOn(c: Context): Boolean {
             val me = ComponentName(c, SayloAccessibility::class.java).flattenToString()
             return Settings.Secure.getString(c.contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)

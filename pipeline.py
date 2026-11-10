@@ -24,7 +24,7 @@ class Result:
     skipped: str = ""
     cleaned_by: str = ""  # model name, or "raw" if cleanup failed and the transcript was pasted as heard
     mode: str = "default"  # the cleanup style used (context.py): ai, whatsapp or default
-    translate: bool = False  # the speaker said "Hey Saylo, translate to English"
+    translate: bool = False  # the speaker said "Hey Sayvra, translate to English"
 
 
 def skip_reason(wav: bytes, res: Result) -> str:
@@ -38,10 +38,10 @@ def skip_reason(wav: bytes, res: Result) -> str:
 def transcribe(audio: bytes, filename: str, res: Result, tone: str = "Balanced", words: list[str] = (),
                mode: str = "default"):
     """Fills res.raw and res.text, or res.skipped when Whisper heard no speech. tone, words (the user's
-    dictionary) and mode (where it's going) shape the transcript and the cleanup; spoken commands ("Hey Saylo,
+    dictionary) and mode (where it's going) shape the transcript and the cleanup; spoken commands ("Hey Sayvra,
     <x> mode", "translate to English") override mode or translate. Raises httpx errors when the network or
     Groq fails."""
-    prompt = asr.hint(list(dict.fromkeys(["Saylo", *words])))  # "Saylo" helps Whisper hear the mode command
+    prompt = asr.hint(list(dict.fromkeys(["Sayvra", *words])))  # "Sayvra" helps Whisper hear the mode command
     res.raw, t = asr.transcribe(audio, prompt, filename)
     res.asr_ms = t * 1000
     if asr.is_hallucination(res.raw, prompt):

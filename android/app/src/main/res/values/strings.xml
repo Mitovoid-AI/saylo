@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Saylo</string>
-    <string name="keyboard_name">Saylo voice keyboard</string>
+    <string name="app_name">Sayvra</string>
+    <string name="keyboard_name">Sayvra voice keyboard</string>
 
     <!-- keyboard -->
     <string name="kb_ready">Hold the mic to talk, or tap it for hands-free</string>
@@ -9,8 +9,8 @@
     <string name="kb_hands_free">Hands-free, tap the mic to send</string>
     <string name="kb_writing">Cleaning up…</string>
     <string name="kb_copied">Copied. Paste it where you want it.</string>
-    <string name="kb_need_key">Tap the mic to add your Groq key in Saylo</string>
-    <string name="kb_need_mic">Tap the mic to allow the microphone in Saylo</string>
+    <string name="kb_need_key">Tap the mic to add your Groq key in Sayvra</string>
+    <string name="kb_need_mic">Tap the mic to allow the microphone in Sayvra</string>
     <string name="kb_mic_error">The microphone is busy or unavailable</string>
     <string name="kb_mic">Hold to talk</string>
     <string name="kb_space">space</string>
@@ -19,6 +19,6 @@
     <string name="kb_enter">Enter</string>
 
     <!-- shown in Settings > Accessibility -->
-    <string name="accessibility_label">Saylo bubble</string>
-    <string name="accessibility_description">Shows the Saylo bubble when you type, and types your dictation into the text box. Saylo reads only the app in front, the address bar of your browser (to pick a writing style) and the text box you\'re dictating into. It never reads password fields.</string>
+    <string name="accessibility_label">Sayvra bubble</string>
+    <string name="accessibility_description">Shows the Sayvra bubble when you type, and types your dictation into the text box. Sayvra reads only the app in front, the address bar of your browser (to pick a writing style) and the text box you\'re dictating into. It never reads password fields.</string>
 </resources>

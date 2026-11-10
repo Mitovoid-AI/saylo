@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The Saylo bubble (SayloAccessibility): it needs to know when a text box is focused and the keyboard is open,
+<!-- The Sayvra bubble (SayloAccessibility): it needs to know when a text box is focused and the keyboard is open,
      and to type into that box. Window content is read only for the focused box and browser address bars. -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeViewFocused|typeWindowStateChanged|typeWindowsChanged|typeViewTextSelectionChanged|typeWindowContentChanged"

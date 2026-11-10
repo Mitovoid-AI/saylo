@@ -27,7 +27,7 @@ SYSTEM_PROMPT = _prompt("base.txt")
 TONES = {"Casual": _prompt("tone_casual.txt"), "Formal": _prompt("tone_formal.txt")}
 # Where the text is going (see context.py) picks a mode; its rules come after the base ones and override them.
 MODES = {"ai": _prompt("mode_ai_prompt.txt"), "whatsapp": _prompt("mode_whatsapp.txt")}
-# Hindi in the transcript is written as Hinglish, unless the speaker said "Hey Saylo, translate to English".
+# Hindi in the transcript is written as Hinglish, unless the speaker said "Hey Sayvra, translate to English".
 HINGLISH, TRANSLATE = _prompt("hinglish.txt"), _prompt("translate_english.txt")
 DEVANAGARI = re.compile("[ऀ-ॿ]")
 # How much longer than the transcript a reply may get (x times its letters, plus) before it counts as the model
